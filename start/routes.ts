@@ -1,16 +1,59 @@
-/*
-|--------------------------------------------------------------------------
-| Routes file
-|--------------------------------------------------------------------------
-|
-| The routes file is used for defining the HTTP routes.
-|
-*/
-
 import router from '@adonisjs/core/services/router'
+import { middleware } from './kernel.js'
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+const AuthController = () => import('#controllers/auth_controller')
+const UserController = () => import('#controllers/users_controller')
+const RoomController = () => import('#controllers/rooms_controller')
+const AccountController = () => import('#controllers/accounts_controller')
+
+
+router.group(() => {
+
+/**
+  * Auth routes
+  */
+  router.group(() => {
+    router.post('register', [AuthController, 'register'])
+    router.post('login', [AuthController, 'login'])
+    router.post('logout', [AuthController, 'logout']).use(middleware.auth())
+    router.get('me', [AuthController, 'me']).use(middleware.auth())
+    router.post('forgot-password', [AuthController, 'forgotPassword'])
+    router.post('reset-password/:id/:token', [AuthController, 'resetPassword']).as('resetPassword')
+  }).prefix('auth')
+
+/**
+  * User routes
+  *  
+  */
+  router.group(() => {
+    router.get('/:id', [UserController, 'getOne'])
+    router.get('', [UserController, 'getAll']).use(middleware.isAdmin())
+    router.put('update/:id', [UserController, 'update'])
+    router.delete('delete/:id', [UserController, 'delete']).use(middleware.isAdmin())
+  }).prefix('user').use(middleware.auth())
+
+/**
+  * Room routes
+  * 
+  */
+  router.group(() => {
+    router.get('/:id', [RoomController, 'getOne'])
+    router.get('', [RoomController, 'getAll'])
+    router.post('create', [RoomController, 'create']).use(middleware.isAdmin())
+    router.put('update/:id', [RoomController, 'update'])
+    router.delete('delete/:id', [RoomController, 'delete']).use(middleware.isAdmin())
+  }).prefix('room').use(middleware.auth())
+
+/**
+  * Account routes
+  * 
+  */
+  router.group(() => {
+    router.get('/:id', [AccountController, 'getOne']).use(middleware.isSuperAdmin())
+    router.get('', [AccountController, 'getAll']).use(middleware.isSuperAdmin())
+    router.post('create', [AccountController, 'create']).use(middleware.isSuperAdmin())
+    router.put('update/:id', [AccountController, 'update']).use(middleware.isAdmin())
+    router.delete('delete/:id', [AccountController, 'delete']).use(middleware.isSuperAdmin())
+  }).prefix('account').use(middleware.auth())
+
+}).prefix('api')
