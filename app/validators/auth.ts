@@ -40,16 +40,16 @@ const baseUserSchema = vine.object({
     city: vine.string(),
     zipcode: vine.string(),
   }).optional(),
-  firstName: vine.string().minLength(3).maxLength(64),
-  lastName: vine.string().minLength(3).maxLength(64),
+  firstName: vine.string().minLength(3).maxLength(64).optional(),
+  lastName: vine.string().minLength(3).maxLength(64).optional(),
   email: vine
     .string()
     .email()
     .unique(async (query, field) => {
       const user = await query.from('users').where('email', field).first();
       return !user;
-    }),
-  password: vine.string().minLength(8).maxLength(32),
+    }).optional(),
+  password: vine.string().minLength(8).maxLength(32).optional(),
 })
 
 export const updateUser = vine.compile(

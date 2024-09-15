@@ -33,10 +33,11 @@ export default class AccountsController {
   *  Create new room
   *  @return Object - Room object
   */
-  public async create({ request, response }: HttpContext) {
+  public async create({ auth, request, response }: HttpContext) {
     try {
       const payload = await request.validateUsing(createRoom)
-      const room = await Room.create({ ...payload})
+      const user = auth.getUserOrFail()
+      const room = await Room.create({ ...payload, accountId: user!.accountId})
       return response.ok(room)
     } catch (error) {
       return response.badRequest({ error: error.message })

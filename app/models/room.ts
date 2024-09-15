@@ -15,7 +15,7 @@ export default class Room extends BaseModel {
   declare number: number
 
   @column()
-  declare accountId: number
+  declare accountId: string
 
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>

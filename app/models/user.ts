@@ -34,7 +34,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare password: string
 
   @column()
-  declare accountId: number
+  declare accountId: string
 
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
