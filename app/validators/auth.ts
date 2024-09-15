@@ -46,8 +46,8 @@ const baseUserSchema = vine.object({
     .string()
     .email()
     .unique(async (query, field) => {
-      const user = await query.from('users').where('email', field).first();
-      return !user;
+      const user = await query.from('users').where('email', field).first()
+      return !user
     }).optional(),
   password: vine.string().minLength(8).maxLength(32).optional(),
 })

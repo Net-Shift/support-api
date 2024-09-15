@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import { registerValidator, loginValidator, forgotPasswordValidator, resetPasswordValidator } from '#validators/auth'
-// import resetPasswordNotification from '#mails/reset_password_notification'
+import resetPasswordNotification from '#mails/reset_password_notification'
 
 export default class AuthController {
 /**
@@ -75,7 +75,7 @@ export default class AuthController {
       const { email } = await request.validateUsing(forgotPasswordValidator)
       const user = await User.findBy('email', email)
       if (!user) return response.unprocessableEntity({error: "We can't find a user with that e-mail address."})
-      // await resetPasswordNotification(user)
+      await resetPasswordNotification(user)
       return { success: 'Please check your email inbox (and spam) for a password reset link.' }
     } catch (error) {
       return response.badRequest({ error: error.message })
