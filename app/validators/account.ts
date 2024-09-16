@@ -5,3 +5,9 @@ export const createAccount = vine.compile(
     name: vine.string()
   })
 )
+
+export const updateAccount = vine.compile(
+  vine.object({
+    name: vine.string().optional()
+  })
+)

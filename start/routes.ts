@@ -4,6 +4,7 @@ import { middleware } from './kernel.js'
 const AuthController = () => import('#controllers/auth_controller')
 const UserController = () => import('#controllers/users_controller')
 const RoomController = () => import('#controllers/rooms_controller')
+const TableController = () => import('#controllers/tables_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 
 
@@ -40,9 +41,21 @@ router.group(() => {
     router.get('/:id', [RoomController, 'getOne'])
     router.get('', [RoomController, 'getAll'])
     router.post('create', [RoomController, 'create']).use(middleware.isAdmin())
-    router.put('update/:id', [RoomController, 'update'])
+    router.put('update/:id', [RoomController, 'update']).use(middleware.isAdmin())
     router.delete('delete/:id', [RoomController, 'delete']).use(middleware.isAdmin())
   }).prefix('room').use(middleware.auth())
+
+/**
+  * Table routes
+  * 
+  */
+  router.group(() => {
+    router.get('/:id', [TableController, 'getOne'])
+    router.get('', [TableController, 'getAll'])
+    router.post('create', [TableController, 'create']).use(middleware.isAdmin())
+    router.put('update/:id', [TableController, 'update'])
+    router.delete('delete/:id', [TableController, 'delete']).use(middleware.isAdmin())
+  }).prefix('table').use(middleware.auth())
 
 /**
   * Account routes

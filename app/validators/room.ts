@@ -6,3 +6,10 @@ export const createRoom = vine.compile(
     number: vine.number().optional(),
   })
 )
+
+export const updateRoom = vine.compile(
+  vine.object({
+    name: vine.string().optional(),
+    number: vine.number().optional(),
+  })
+)

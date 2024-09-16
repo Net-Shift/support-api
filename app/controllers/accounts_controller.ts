@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Account from '#models/account'
-import { createAccount } from '#validators/account'
+import { createAccount, updateAccount } from '#validators/account'
 
 export default class AccountsController {
 /**
@@ -13,7 +13,7 @@ export default class AccountsController {
       const account = await Account.findOrFail(params.id)
       return response.ok(account)
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -27,7 +27,7 @@ export default class AccountsController {
       const accounts = await Account.query().preload('users').preload('rooms')
       return response.ok(accounts)
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -42,7 +42,7 @@ export default class AccountsController {
       const account = await Account.create({ ...payload})
       return response.ok(account)
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -54,12 +54,12 @@ export default class AccountsController {
   public async update({ params, request, response }: HttpContext) {
     try {
       const account = await Account.findOrFail(params.id)
-      const payload = await request.validateUsing(createAccount)
+      const payload = await request.validateUsing(updateAccount)
       account.merge(payload)
       await account.save()
       return response.ok(account)
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -74,7 +74,7 @@ export default class AccountsController {
       await account.delete()
       return response.json({ message: 'account deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 }

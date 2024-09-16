@@ -18,7 +18,7 @@ export default class AuthController {
         ...user.serialize(),
       })
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -32,7 +32,7 @@ export default class AuthController {
       const user = await User.create(payload)
       return response.created(user)
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -62,7 +62,7 @@ export default class AuthController {
       await User.accessTokens.delete(user, token)
       return response.ok({ message: 'Logged out' })
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -78,7 +78,7 @@ export default class AuthController {
       await resetPasswordNotification(user)
       return { success: 'Please check your email inbox (and spam) for a password reset link.' }
     } catch (error) {
-      return response.badRequest({ error: error.message })
+      return response.badRequest({ error: error.messages })
     }
   }
 
@@ -97,7 +97,7 @@ export default class AuthController {
       await user.save()
       return { success: 'Password reset successfully.' }
     } catch (error) {
-      return response.unauthorized({ error: error.message })
+      return response.unauthorized({ error: error.messages })
     }
   }
 }
