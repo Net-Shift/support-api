@@ -12,7 +12,12 @@ const baseTableSchema = vine.object({
 
 export const createTable = vine.compile(
   vine.object({
-    roomId: vine.string(),
+    roomId: vine
+    .string()
+    .exists(async (query, field) => {
+      const room = await query.from('rooms').where('id', field).first()
+      return !!room
+    }),
     ...baseTableSchema.getProperties()
   })
 )

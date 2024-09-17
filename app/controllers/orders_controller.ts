@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Order from '#models/order'
 import { createOrder, updateOrder } from '#validators/order'
 
-export default class AccountsController {
+export default class OrdersController {
 /**
   *  Get order by id
   *  @return Object - Order object
@@ -17,12 +17,12 @@ export default class AccountsController {
   }
 
 /**
-  *  Get all rooms
-  *  @return Array - Array of rooms
+  *  Get all orders
+  *  @return Array - Array of orders
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const rooms = await Order.query().preload('table')
+      const rooms = await Order.query().preload('table').preload('orderItems')
       return response.ok(rooms)
     } catch (error) {
       return response.badRequest({ error: error })

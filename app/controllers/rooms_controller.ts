@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Room from '#models/room'
 import { createRoom, updateRoom } from '#validators/room'
 
-export default class AccountsController {
+export default class RoomsController {
 /**
   *  Get room by id
   *  @return Object - Room object

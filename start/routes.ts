@@ -6,6 +6,7 @@ const UserController = () => import('#controllers/users_controller')
 const RoomController = () => import('#controllers/rooms_controller')
 const TableController = () => import('#controllers/tables_controller')
 const OrderController = () => import('#controllers/orders_controller')
+const OrderItemController = () => import('#controllers/order_items_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 
 
@@ -69,6 +70,19 @@ router.group(() => {
     router.put('update/:id', [OrderController, 'update'])
     router.delete('delete/:id', [OrderController, 'delete'])
   }).prefix('order').use(middleware.auth())
+
+/**
+  * OrderItem routes
+  * 
+  */
+  router.group(() => {
+    router.get('/:id', [OrderItemController, 'getOne'])
+    router.get('', [OrderItemController, 'getAll'])
+    router.post('create', [OrderItemController, 'create'])
+    router.put('update/:id', [OrderItemController, 'update'])
+    router.delete('delete/:id', [OrderItemController, 'delete'])
+  }).prefix('orderItem').use(middleware.auth())
+
 
 /**
   * Account routes

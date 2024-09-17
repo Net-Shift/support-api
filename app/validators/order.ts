@@ -2,18 +2,22 @@ import vine from '@vinejs/vine'
 
 const baseOrderSchema = vine.object({
   status: vine.string().optional(),
-  tableId: vine.string()
 })
 
 export const createOrder = vine.compile(
   vine.object({
+    tableId: vine
+    .string()
+    .exists(async (query, field) => {
+      const table = await query.from('tables').where('id', field).first()
+      return !!table
+    }),
     ...baseOrderSchema.getProperties()
   })
 )
 
 export const updateOrder = vine.compile(
   vine.object({
-    ...baseOrderSchema.getProperties(),
-    tableId: vine.string().optional()
+    ...baseOrderSchema.getProperties()
   })
 )

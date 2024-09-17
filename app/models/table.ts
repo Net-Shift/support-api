@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { BaseModel, column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo, hasMany, beforeCreate } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Room from '#models/room'
 import Account from '#models/account'
+import Order from '#models/order'
 
 export default class Table extends BaseModel {
   @column({ isPrimary: true })
@@ -38,6 +39,9 @@ export default class Table extends BaseModel {
 
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
+
+  @hasMany(() => Order)
+  declare orders: HasMany<typeof Order>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

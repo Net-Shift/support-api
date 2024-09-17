@@ -17,8 +17,8 @@ export default class TablesController {
   }
 
 /**
-  *  Get all rooms
-  *  @return Array - Array of rooms
+  *  Get all tables
+  *  @return Array - Array of tables
   */
   public async getAll({ response }: HttpContext) {
     try {
