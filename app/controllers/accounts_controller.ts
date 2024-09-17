@@ -13,7 +13,7 @@ export default class AccountsController {
       const account = await Account.findOrFail(params.id)
       return response.ok(account)
     } catch (error) {
-      return response.badRequest({ error: error.messages })
+      return response.badRequest({ error: error })
     }
   }
 
@@ -27,7 +27,7 @@ export default class AccountsController {
       const accounts = await Account.query().preload('users').preload('rooms')
       return response.ok(accounts)
     } catch (error) {
-      return response.badRequest({ error: error.messages })
+      return response.badRequest({ error: error })
     }
   }
 
@@ -42,7 +42,7 @@ export default class AccountsController {
       const account = await Account.create({ ...payload})
       return response.ok(account)
     } catch (error) {
-      return response.badRequest({ error: error.messages })
+      return response.badRequest({ error: error })
     }
   }
 
@@ -59,7 +59,7 @@ export default class AccountsController {
       await account.save()
       return response.ok(account)
     } catch (error) {
-      return response.badRequest({ error: error.messages })
+      return response.badRequest({ error: error })
     }
   }
 
@@ -74,7 +74,7 @@ export default class AccountsController {
       await account.delete()
       return response.json({ message: 'account deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error.messages })
+      return response.badRequest({ error: error })
     }
   }
 }

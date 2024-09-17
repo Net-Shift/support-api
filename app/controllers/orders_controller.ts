@@ -1,16 +1,16 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Room from '#models/room'
-import { createRoom, updateRoom } from '#validators/room'
+import Order from '#models/order'
+import { createOrder, updateOrder } from '#validators/order'
 
 export default class AccountsController {
 /**
-  *  Get room by id
-  *  @return Object - Room object
+  *  Get order by id
+  *  @return Object - Order object
   */
   public async getOne({ params, response }: HttpContext) {
     try {
-      const room = await Room.findOrFail(params.id)
-      return response.ok(room)
+      const order = await Order.findOrFail(params.id)
+      return response.ok(order)
     } catch (error) {
       return response.badRequest({ error: error })
     }
@@ -22,54 +22,54 @@ export default class AccountsController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const rooms = await Room.query().preload('tables')
+      const rooms = await Order.query().preload('table')
       return response.ok(rooms)
     } catch (error) {
-      console.log('error >>', error)
       return response.badRequest({ error: error })
     }
   }
 
 /**
-  *  Create new room
-  *  @return Object - Room object
+  *  Create new order
+  *  @return Object - Order object
   */
   public async create({ auth, request, response }: HttpContext) {
     try {
-      const payload = await request.validateUsing(createRoom)
+      const payload = await request.validateUsing(createOrder)
       const user = auth.getUserOrFail()
-      const room = await Room.create({ ...payload, accountId: user!.accountId})
-      return response.ok(room)
+      const order = await Order.create({ ...payload, accountId: user!.accountId})
+      return response.ok(order)
     } catch (error) {
+      console.log('error', error)
       return response.badRequest({ error: error })
     }
   }
 
 /**
-  *  Update room 
-  *  @return Object - Updated room object
+  *  Update order 
+  *  @return Object - Updated order object
   */
   public async update({ params, request, response }: HttpContext) {
     try {
-      const room = await Room.findOrFail(params.id)
-      const payload = await request.validateUsing(updateRoom)
-      room.merge(payload)
-      await room.save()
-      return response.ok(room)
+      const order = await Order.findOrFail(params.id)
+      const payload = await request.validateUsing(updateOrder)
+      order.merge(payload)
+      await order.save()
+      return response.ok(order)
     } catch (error) {
       return response.badRequest({ error: error })
     }
   }
 
 /**
-  *  Delete room 
+  *  Delete order 
   *  @return Object - Success message
   */
   public async delete({ params, response }: HttpContext) {
     try {
-      const room = await Room.findOrFail(params.id)
-      await room.delete()
-      return response.json({ message: 'room deleted successfully' })
+      const order = await Order.findOrFail(params.id)
+      await order.delete()
+      return response.json({ message: 'order deleted successfully' })
     } catch (error) {
       return response.badRequest({ error: error })
     }

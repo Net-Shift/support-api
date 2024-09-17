@@ -51,7 +51,7 @@ export default class UsersController {
       await user.merge(payload).save()
       return response.ok(user)
     } catch (error) {
-      return response.badRequest({ error: error.messages })
+      return response.badRequest({ error: error })
     }
   }
 
