@@ -22,8 +22,8 @@ export default class OrdersController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const rooms = await Order.query().preload('table').preload('orderItems')
-      return response.ok(rooms)
+      const orders = await Order.query().preload('table').preload('orderItems')
+      return response.ok(orders)
     } catch (error) {
       return response.badRequest({ error: error })
     }

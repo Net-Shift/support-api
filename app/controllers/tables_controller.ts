@@ -22,8 +22,8 @@ export default class TablesController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const rooms = await Table.query()
-      return response.ok(rooms)
+      const tables = await Table.query()
+      return response.ok(tables)
     } catch (error) {
       return response.badRequest({ error: error })
     }

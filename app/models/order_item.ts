@@ -4,7 +4,7 @@ import { BaseModel, column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Order from '#models/order'
 import Account from '#models/account'
-// import Item from '#models/item'
+import Item from '#models/item'
 
 export default class OrderItem extends BaseModel {
   @column({ isPrimary: true })
@@ -16,11 +16,11 @@ export default class OrderItem extends BaseModel {
   @column()
   declare status: string
 
-  // @column()
-  // declare itemId: string
+  @column()
+  declare itemId: string
 
-  // @belongsTo(() => Item)
-  // declare account: BelongsTo<typeof Item>
+  @belongsTo(() => Item)
+  declare item: BelongsTo<typeof Item>
 
   @column()
   declare orderId: string

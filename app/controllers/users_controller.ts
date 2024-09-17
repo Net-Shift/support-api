@@ -28,8 +28,8 @@ export default class UsersController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const result = await User.query()
-      return response.ok(result)
+      const users = await User.query()
+      return response.ok(users)
     } catch (error) {
       return response.badRequest({ error: 'Users not found' })
     }
