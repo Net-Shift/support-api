@@ -4,6 +4,7 @@ import { BaseModel, column, belongsTo, hasMany, beforeCreate } from '@adonisjs/l
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Account from '#models/account'
 import OrderItem from '#models/order_item'
+import ItemType from '#models/item_type'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -23,6 +24,12 @@ export default class Item extends BaseModel {
 
   @hasMany(() => OrderItem)
   declare orderItems: HasMany<typeof OrderItem>
+
+  @column()
+  declare itemTypeId: string
+
+  @belongsTo(() => ItemType)
+  declare itemType: BelongsTo<typeof ItemType>
 
   @column()
   declare accountId: string

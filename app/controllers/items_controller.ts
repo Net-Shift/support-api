@@ -22,9 +22,15 @@ export default class ItemsController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const items = await Item.query().preload('orderItems')
+      const items = await Item.query()
+        .select()
+        .preload('orderItems')
+        .preload('itemType', (query) => {
+          query.select('name')
+        })
       return response.ok(items)
     } catch (error) {
+      console.log('error', error)
       return response.badRequest({ error: error })
     }
   }

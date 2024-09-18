@@ -9,6 +9,7 @@ const OrderController = () => import('#controllers/orders_controller')
 const OrderItemController = () => import('#controllers/order_items_controller')
 const ItemController = () => import('#controllers/items_controller')
 const StatusController = () => import('#controllers/statuses_controller')
+const ItemTypeController = () => import('#controllers/item_types_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 
 
@@ -70,7 +71,7 @@ router.group(() => {
     router.get('', [OrderController, 'getAll'])
     router.post('create', [OrderController, 'create'])
     router.put('update/:id', [OrderController, 'update'])
-    router.delete('delete/:id', [OrderController, 'delete'])
+    router.delete('delete/:id', [OrderController, 'delete']).use(middleware.isAdmin())
   }).prefix('order').use(middleware.auth())
 
 /**
@@ -86,19 +87,19 @@ router.group(() => {
   }).prefix('orderItem').use(middleware.auth())
 
 /**
-  * OrderItem routes
+  * Item routes
   * 
   */
   router.group(() => {
     router.get('/:id', [ItemController, 'getOne'])
     router.get('', [ItemController, 'getAll'])
     router.post('create', [ItemController, 'create'])
-    router.put('update/:id', [ItemController, 'update'])
-    router.delete('delete/:id', [ItemController, 'delete'])
+    router.put('update/:id', [ItemController, 'update']).use(middleware.isAdmin())
+    router.delete('delete/:id', [ItemController, 'delete']).use(middleware.isAdmin())
   }).prefix('item').use(middleware.auth())
 
 /**
-  * OrderItem routes
+  * Status routes
   * 
   */
   router.group(() => {
@@ -107,7 +108,19 @@ router.group(() => {
     router.post('create', [StatusController, 'create'])
     router.put('update/:id', [StatusController, 'update'])
     router.delete('delete/:id', [StatusController, 'delete'])
-  }).prefix('status').use(middleware.auth())
+  }).prefix('status').use([middleware.auth(), middleware.isAdmin()])
+
+/**
+  * ItemType routes
+  * 
+  */
+  router.group(() => {
+    router.get('/:id', [ItemTypeController, 'getOne'])
+    router.get('', [ItemTypeController, 'getAll'])
+    router.post('create', [ItemTypeController, 'create'])
+    router.put('update/:id', [ItemTypeController, 'update'])
+    router.delete('delete/:id', [ItemTypeController, 'delete'])
+  }).prefix('itemType').use([middleware.auth(), middleware.isAdmin()])
 
 /**
   * Account routes

@@ -1,13 +1,12 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { BaseModel, column, beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo, hasMany, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Account from '#models/account'
 import Order from '#models/order'
-import OrderItem from '#models/order_item'
 import Item from '#models/item'
 
-export default class Status extends BaseModel {
+export default class ItemType extends BaseModel {
   @column({ isPrimary: true })
   declare id: string
 
@@ -16,9 +15,6 @@ export default class Status extends BaseModel {
 
   @hasMany(() => Order)
   declare orders: HasMany<typeof Order>
-
-  @hasMany(() => OrderItem)
-  declare orderItems: HasMany<typeof OrderItem>
 
   @hasMany(() => Item)
   declare items: HasMany<typeof Item>
@@ -36,8 +32,8 @@ export default class Status extends BaseModel {
   declare updatedAt: DateTime
 
   @beforeCreate()
-  public static assignCuid(statut: Status) {
-    statut.id = cuid()
+  public static assignCuid(itemType: ItemType) {
+    itemType.id = cuid()
   }
 }
 
