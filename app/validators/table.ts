@@ -3,11 +3,17 @@ import vine from '@vinejs/vine'
 
 const baseTableSchema = vine.object({
   name: vine.string(),
-  status: vine.string().optional(),
   xStart: vine.number().optional(),
   yStart: vine.number().optional(),
   width: vine.number().optional(),
   length: vine.number().optional(),
+  statusId: vine
+    .string()
+    .exists(async (query, field) => {
+      const status = await query.from('statuses').where('id', field).first()
+      return !!status
+    })
+    .optional()
 })
 
 export const createTable = vine.compile(

@@ -21,14 +21,14 @@ export default class Item extends BaseModel {
   @column()
   declare price: number
 
+  @hasMany(() => OrderItem)
+  declare orderItems: HasMany<typeof OrderItem>
+
   @column()
   declare accountId: string
 
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
-
-  @hasMany(() => OrderItem)
-  declare orderItems: HasMany<typeof OrderItem>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -5,6 +5,7 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Order from '#models/order'
 import Account from '#models/account'
 import Item from '#models/item'
+import Status from '#models/status'
 
 export default class OrderItem extends BaseModel {
   @column({ isPrimary: true })
@@ -12,9 +13,6 @@ export default class OrderItem extends BaseModel {
 
   @column()
   declare note: string
-
-  @column()
-  declare status: string
 
   @column()
   declare itemId: string
@@ -27,6 +25,12 @@ export default class OrderItem extends BaseModel {
 
   @belongsTo(() => Order)
   declare order: BelongsTo<typeof Order>
+
+  @column()
+  declare statusId: string
+
+  @belongsTo(() => Status)
+  declare status: BelongsTo<typeof Status>
 
   @column()
   declare accountId: string

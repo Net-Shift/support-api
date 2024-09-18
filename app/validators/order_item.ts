@@ -1,8 +1,14 @@
 import vine from '@vinejs/vine'
 
 const baseOrderItemSchema = vine.object({
-  status: vine.string().optional(),
   note: vine.string().optional(),
+  statusId: vine
+    .string()
+    .exists(async (query, field) => {
+      const status = await query.from('statuses').where('id', field).first()
+      return !!status
+    })
+    .optional()
 })
 
 export const createOrderItem = vine.compile(

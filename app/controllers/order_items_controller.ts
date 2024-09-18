@@ -22,7 +22,7 @@ export default class OrderItemsController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const orderItems = await OrderItem.query().preload('order').preload('item')
+      const orderItems = await OrderItem.query().preload('order').preload('item').preload('status')
       return response.ok(orderItems)
     } catch (error) {
       return response.badRequest({ error: error })

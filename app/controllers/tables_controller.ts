@@ -22,7 +22,7 @@ export default class TablesController {
   */
   public async getAll({ response }: HttpContext) {
     try {
-      const tables = await Table.query()
+      const tables = await Table.query().preload('status').preload('orders')
       return response.ok(tables)
     } catch (error) {
       return response.badRequest({ error: error })

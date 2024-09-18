@@ -5,6 +5,7 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Room from '#models/room'
 import Account from '#models/account'
 import Order from '#models/order'
+import Status from '#models/status'
 
 export default class Table extends BaseModel {
   @column({ isPrimary: true })
@@ -12,9 +13,6 @@ export default class Table extends BaseModel {
 
   @column()
   declare name: string
-
-  @column()
-  declare status: string
 
   @column()
   declare xStart: number
@@ -34,14 +32,20 @@ export default class Table extends BaseModel {
   @belongsTo(() => Room)
   declare room: BelongsTo<typeof Room>
 
+  @hasMany(() => Order)
+  declare orders: HasMany<typeof Order>
+
+  @column()
+  declare statusId: string
+
+  @belongsTo(() => Status)
+  declare status: BelongsTo<typeof Status>
+
   @column()
   declare accountId: string
 
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
-
-  @hasMany(() => Order)
-  declare orders: HasMany<typeof Order>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

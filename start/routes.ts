@@ -8,6 +8,7 @@ const TableController = () => import('#controllers/tables_controller')
 const OrderController = () => import('#controllers/orders_controller')
 const OrderItemController = () => import('#controllers/order_items_controller')
 const ItemController = () => import('#controllers/items_controller')
+const StatusController = () => import('#controllers/statuses_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 
 
@@ -95,6 +96,18 @@ router.group(() => {
     router.put('update/:id', [ItemController, 'update'])
     router.delete('delete/:id', [ItemController, 'delete'])
   }).prefix('item').use(middleware.auth())
+
+/**
+  * OrderItem routes
+  * 
+  */
+  router.group(() => {
+    router.get('/:id', [StatusController, 'getOne'])
+    router.get('', [StatusController, 'getAll'])
+    router.post('create', [StatusController, 'create'])
+    router.put('update/:id', [StatusController, 'update'])
+    router.delete('delete/:id', [StatusController, 'delete'])
+  }).prefix('status').use(middleware.auth())
 
 /**
   * Account routes
