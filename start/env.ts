@@ -12,12 +12,12 @@
 import { Env } from '@adonisjs/core/env'
 
 export default await Env.create(new URL('../', import.meta.url), {
-  NODE_ENV: Env.schema.enum(['development', 'production', 'test'] as const),
-  PORT: Env.schema.number(),
-  APP_KEY: Env.schema.string(),
-  HOST: Env.schema.string({ format: 'host' }),
-  LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
-  APP_URL: Env.schema.string(),
+  NODE_ENV: Env.schema.enum.optional(['development', 'production', 'test'] as const),
+  PORT: Env.schema.number.optional(),
+  APP_KEY: Env.schema.string.optional(),
+  HOST: Env.schema.string.optional({ format: 'host' }),
+  LOG_LEVEL: Env.schema.enum.optional(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
+  APP_URL: Env.schema.string.optional(),
   API_URL: Env.schema.string(),
   PASSWORD_RESET_PAGE_URL: Env.schema.string(),
 
@@ -27,11 +27,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   SCALINGO_POSTGRESQL_URL: Env.schema.string(),
-  DB_HOST: Env.schema.string({ format: 'host' }),
-  DB_PORT: Env.schema.number(),
-  DB_USER: Env.schema.string(),
+  DB_HOST: Env.schema.string.optional({ format: 'host' }),
+  DB_PORT: Env.schema.number.optional(),
+  DB_USER: Env.schema.string.optional(),
   DB_PASSWORD: Env.schema.string.optional(),
-  DB_DATABASE: Env.schema.string(),
+  DB_DATABASE: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------
