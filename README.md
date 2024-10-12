@@ -13,3 +13,9 @@ scalingo --app fork-it-api run node ace migration:run
 
 ## Deploy to Scalingo 
 git push scalingo master
+
+
+### Docker 
+
+docker run -d -p 6379:6379 --name redis-server redis
+docker start redis-server
