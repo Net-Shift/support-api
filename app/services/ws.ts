@@ -61,7 +61,9 @@ class Ws {
       socket.emit('session', { sessionId: socket.sessionId})
       // socket.join(`channel:notifTypeOne:accountId:${user?.accountId}`)
       // socket.join(`channel:notifTypeTwo:accountId:${user?.accountId}`)
-
+      socket.on('disconnect', () => {
+        console.log('disconnect')
+      })
     })
   }
 
