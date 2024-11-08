@@ -61,6 +61,6 @@ export const updateUser = vine.compile(
 export const updateUserAdmin = vine.compile(
   vine.object({
     ...baseUserSchema.getProperties(),
-    profil: vine.string().optional()
+    profil: vine.string().notSameAs('superadmin').optional()
   })
 );
