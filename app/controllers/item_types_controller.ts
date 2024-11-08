@@ -1,47 +1,60 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import Item from '#models/item_type'
+import ItemType from '#models/item_type'
 import { createItemType, updateItemType } from '#validators/item_type'
 
 export default class ItemsController {
 /**
   *  Get itemType by id
-  *  @return Object - Item object
+  *  @return Object - ItemType object
   */
-  public async getOne({ params, response }: HttpContext) {
+  public async getOne({ auth, params, response }: HttpContext) {
     try {
-      const itemType = await Item.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const itemType = await ItemType.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id),
+          scopes.preload()
+        })
+        .firstOrFail()
       return response.ok(itemType)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
 /**
   *  Get all itemTypes
-  *  @return Array - Array of itemTypes
+  *  @return Object - array of itemTypes and pagination data
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
-      const itemTypes = await Item.query()
+      const user = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const itemTypes = await ItemType.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.filters(filters)
+        })
+        .paginate(page, perPage)
       return response.ok(itemTypes)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
 /**
   *  Create new itemType
-  *  @return Object - Item object
+  *  @return Object - ItemType object
   */
   public async create({ auth, request, response }: HttpContext) {
     try {
       const payload = await request.validateUsing(createItemType)
       const user = auth.getUserOrFail()
-      const itemType = await Item.create({ ...payload, accountId: user!.accountId})
+      const itemType = await ItemType.create({ ...payload, accountId: user.accountId})
       return response.ok(itemType)
     } catch (error) {
-      console.log('error', error)
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -49,15 +62,20 @@ export default class ItemsController {
   *  Update itemType 
   *  @return Object - Updated itemType object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const itemType = await Item.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const itemType = await ItemType.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateItemType)
-      itemType.merge(payload)
-      await itemType.save()
+      await itemType.merge(payload).save()
       return response.ok(itemType)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -65,13 +83,19 @@ export default class ItemsController {
   *  Delete itemType 
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const itemType = await Item.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const itemType = await ItemType.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await itemType.delete()
       return response.json({ message: 'itemType deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 }
