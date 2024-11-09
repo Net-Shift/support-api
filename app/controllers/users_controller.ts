@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import { updateUser, updateUserAdmin } from '#validators/auth'
+import UserPolicy from '#policies/user_policy'
 
 export default class UsersController {
 /**
@@ -40,14 +41,15 @@ export default class UsersController {
   *  Only admin can update other users
   *  @return Object - Updated user object
   */
-  public  async update({ auth, request, response, params }: HttpContext) {
+  public  async update({ auth, request, response, params, bouncer }: HttpContext) {
     try {
-      if (auth.user?.profil !== 'admin' && auth.user?.profil !== 'superadmin' && auth.user?.id !== params.id) {
-        return response.unauthorized({ error: 'You are not authorized to perform this action' })
-      }
       const validator = auth.user?.profil === 'admin' || auth.user?.profil === 'superadmin'  ? updateUserAdmin : updateUser
       const payload = await request.validateUsing(validator)
       const user = await User.findOrFail(params.id)
+
+      if (await bouncer.with(UserPolicy).denies('edit', user)) {
+        return response.badRequest({ error: 'Cannot edit the user' })
+      }
       await user.merge(payload).save()
       return response.ok(user)
     } catch (error) {
@@ -60,12 +62,12 @@ export default class UsersController {
   *  Only admin can delete other users
   *  @return Object - Success message
   */
-  public async delete({ auth, params, response }: HttpContext) {
+  public async delete({ params, response, bouncer }: HttpContext) {
     try {
-      if (auth.user?.profil !== 'admin' && auth.user?.profil !== 'superadmin' && auth.user?.id !== params.id) {
-        return response.unauthorized({ error: 'You are not authorized to perform this action' })
-      }
       const user = await User.findOrFail(params.id)
+      if (await bouncer.with(UserPolicy).denies('delete', user)) {
+        return response.badRequest({ error: 'Cannot deleted the user' })
+      }
       await user.delete()
       return response.json({ message: 'User deleted successfully' })
     } catch (error) {

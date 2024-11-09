@@ -1,6 +1,9 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
+// bouncer
+import { isAdmin, isSuperAdmin } from '#abilities/main'
+
 const AuthController = () => import('#controllers/auth_controller')
 const UserController = () => import('#controllers/users_controller')
 const RoomController = () => import('#controllers/rooms_controller')
@@ -33,9 +36,9 @@ router.group(() => {
   */
   router.group(() => {
     router.get('/:id', [UserController, 'getOne'])
-    router.get('', [UserController, 'getAll']).use(middleware.isAdmin())
+    router.get('', [UserController, 'getAll']).use(middleware.bouncer(isAdmin))
     router.put('update/:id', [UserController, 'update'])
-    router.delete('delete/:id', [UserController, 'delete']).use(middleware.isAdmin())
+    router.delete('delete/:id', [UserController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('user').use(middleware.auth())
 
 /**
@@ -45,9 +48,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [RoomController, 'getOne'])
     router.get('', [RoomController, 'getAll'])
-    router.post('create', [RoomController, 'create']).use(middleware.isAdmin())
-    router.put('update/:id', [RoomController, 'update']).use(middleware.isAdmin())
-    router.delete('delete/:id', [RoomController, 'delete']).use(middleware.isAdmin())
+    router.post('create', [RoomController, 'create']).use(middleware.bouncer(isAdmin))
+    router.put('update/:id', [RoomController, 'update']).use(middleware.bouncer(isAdmin))
+    router.delete('delete/:id', [RoomController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('room').use(middleware.auth())
 
 /**
@@ -57,9 +60,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [TableController, 'getOne'])
     router.get('', [TableController, 'getAll'])
-    router.post('create', [TableController, 'create']).use(middleware.isAdmin())
+    router.post('create', [TableController, 'create']).use(middleware.bouncer(isAdmin))
     router.put('update/:id', [TableController, 'update'])
-    router.delete('delete/:id', [TableController, 'delete']).use(middleware.isAdmin())
+    router.delete('delete/:id', [TableController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('table').use(middleware.auth())
 
 /**
@@ -71,7 +74,7 @@ router.group(() => {
     router.get('', [OrderController, 'getAll'])
     router.post('create', [OrderController, 'create'])
     router.put('update/:id', [OrderController, 'update'])
-    router.delete('delete/:id', [OrderController, 'delete']).use(middleware.isAdmin())
+    router.delete('delete/:id', [OrderController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('order').use(middleware.auth())
 
 /**
@@ -94,8 +97,8 @@ router.group(() => {
     router.get('/:id', [ItemController, 'getOne'])
     router.get('', [ItemController, 'getAll'])
     router.post('create', [ItemController, 'create'])
-    router.put('update/:id', [ItemController, 'update']).use(middleware.isAdmin())
-    router.delete('delete/:id', [ItemController, 'delete']).use(middleware.isAdmin())
+    router.put('update/:id', [ItemController, 'update']).use(middleware.bouncer(isAdmin))
+    router.delete('delete/:id', [ItemController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('item').use(middleware.auth())
 
 /**
@@ -108,7 +111,7 @@ router.group(() => {
     router.post('create', [StatusController, 'create'])
     router.put('update/:id', [StatusController, 'update'])
     router.delete('delete/:id', [StatusController, 'delete'])
-  }).prefix('status').use([middleware.auth(), middleware.isAdmin()])
+  }).prefix('status').use([middleware.auth(), middleware.bouncer(isAdmin)])
 
 /**
   * ItemType routes
@@ -120,18 +123,18 @@ router.group(() => {
     router.post('create', [ItemTypeController, 'create'])
     router.put('update/:id', [ItemTypeController, 'update'])
     router.delete('delete/:id', [ItemTypeController, 'delete'])
-  }).prefix('itemType').use([middleware.auth(), middleware.isAdmin()])
+  }).prefix('itemType').use([middleware.auth(), middleware.bouncer(isAdmin)])
 
 /**
   * Account routes
   * 
   */
   router.group(() => {
-    router.get('/:id', [AccountController, 'getOne']).use(middleware.isSuperAdmin())
-    router.get('', [AccountController, 'getAll']).use(middleware.isSuperAdmin())
-    router.post('create', [AccountController, 'create']).use(middleware.isSuperAdmin())
-    router.put('update/:id', [AccountController, 'update']).use(middleware.isAdmin())
-    router.delete('delete/:id', [AccountController, 'delete']).use(middleware.isSuperAdmin())
+    router.get('/:id', [AccountController, 'getOne']).use(middleware.bouncer(isSuperAdmin))
+    router.get('', [AccountController, 'getAll']).use(middleware.bouncer(isSuperAdmin))
+    router.post('create', [AccountController, 'create']).use(middleware.bouncer(isSuperAdmin))
+    router.put('update/:id', [AccountController, 'update']).use(middleware.bouncer(isSuperAdmin))
+    router.delete('delete/:id', [AccountController, 'delete']).use(middleware.bouncer(isSuperAdmin))
   }).prefix('account').use(middleware.auth())
 
 }).prefix('api')
