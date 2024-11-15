@@ -28,6 +28,10 @@ git push scalingo master
 docker run -d -p 5432:5432 --name postgres_container -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=fork_it_api postgres
 docker start postgres_container
 
+### Run migrations and seed database
+node ace migration:run
+node ace db:seed
+
 ### Redis
 docker run -d -p 6379:6379 --name redis_container redis
 docker start redis_container

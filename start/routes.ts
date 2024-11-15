@@ -22,7 +22,6 @@ router.group(() => {
   * Auth routes
   */
   router.group(() => {
-    router.post('register', [AuthController, 'register'])
     router.post('login', [AuthController, 'login'])
     router.post('logout', [AuthController, 'logout']).use(middleware.auth())
     router.get('me', [AuthController, 'me']).use(middleware.auth())
@@ -37,6 +36,7 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [UserController, 'getOne'])
     router.get('', [UserController, 'getAll']).use(middleware.bouncer(isAdmin))
+    router.post('create', [UserController, 'create']).use(middleware.bouncer(isAdmin))
     router.put('update/:id', [UserController, 'update'])
     router.delete('delete/:id', [UserController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('user').use(middleware.auth())
@@ -130,11 +130,11 @@ router.group(() => {
   * 
   */
   router.group(() => {
-    router.get('/:id', [AccountController, 'getOne']).use(middleware.bouncer(isSuperAdmin))
-    router.get('', [AccountController, 'getAll']).use(middleware.bouncer(isSuperAdmin))
-    router.post('create', [AccountController, 'create']).use(middleware.bouncer(isSuperAdmin))
-    router.put('update/:id', [AccountController, 'update']).use(middleware.bouncer(isSuperAdmin))
-    router.delete('delete/:id', [AccountController, 'delete']).use(middleware.bouncer(isSuperAdmin))
-  }).prefix('account').use(middleware.auth())
+    router.get('/:id', [AccountController, 'getOne'])
+    router.get('', [AccountController, 'getAll'])
+    router.post('create', [AccountController, 'create'])
+    router.put('update/:id', [AccountController, 'update'])
+    router.delete('delete/:id', [AccountController, 'delete'])
+  }).prefix('account').use([middleware.auth(), middleware.bouncer(isSuperAdmin)])
 
 }).prefix('api')

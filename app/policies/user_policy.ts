@@ -7,21 +7,28 @@ const ADMIN = 'admin'
 
 export default class UserPolicy extends BasePolicy {
   
-    edit(currentUser: User, user: User): AuthorizerResponse {
+    get(currentUser: User, user: User): AuthorizerResponse {
       const allowUserRole = [ADMIN, SUPERADMIN]
-      if (allowUserRole.includes(user.profil)) {
+      if (allowUserRole.includes(currentUser.profil)) {
         return true
       }
-      return currentUser.id === user.accountId
+      return currentUser.id === user.id
     }
-  
+
+    edit(currentUser: User, user: User): AuthorizerResponse {
+      const allowUserRole = [ADMIN, SUPERADMIN]
+      if (allowUserRole.includes(currentUser.profil)) {
+        return true
+      }
+      return currentUser.id === user.id
+    }
 
     delete(currentUser: User, user: User): AuthorizerResponse {
       const allowUserRole = [ADMIN, SUPERADMIN]
-      if (allowUserRole.includes(user.profil)) {
+      if (allowUserRole.includes(currentUser.profil)) {
         return true
       }
-      return currentUser.id === user.accountId
+      return currentUser.id === user.id
     }
   
 }

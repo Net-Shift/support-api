@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import { updateUser, updateUserAdmin } from '#validators/auth'
+import { getUserValidator, registerValidator } from '#validators/auth'
 import UserPolicy from '#policies/user_policy'
 
 export default class UsersController {
@@ -9,16 +9,21 @@ export default class UsersController {
   *  Only admin can get other users
   *  @return Object - User object
   */
-  public async getOne({ auth, params, response }: HttpContext) {
+  public async getOne({ auth, params, response, bouncer }: HttpContext) {
     try {
-      if (auth.user?.profil !== 'admin' && auth.user?.profil !== 'superadmin' && auth.user?.id !== params.id) {
-        return response.unauthorized({ error: 'You are not authorized to perform this action' })
+      const currentUser = auth.getUserOrFail()
+      const user = await User.query()
+        .apply((scopes) => {
+          scopes.account(currentUser),
+          scopes.id(params.id),
+          scopes.preload()
+        }).firstOrFail()
+      if (await bouncer.with(UserPolicy).denies('get', user)) {
+        return response.badRequest({ error: 'Cannot get the user' })
       }
-      const user = await User.findOrFail(params.id)
-      const result = await User.query().where('id', user.id).preload('account')
-      return response.ok(result)
+      return response.ok(user)
     } catch (error) {
-      return response.badRequest({ error: 'User not found' })
+      throw error
     }
   }
 
@@ -27,12 +32,34 @@ export default class UsersController {
   *  Only admin can access this route
   *  @return Array - Array of users
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
+      const currentUser = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
       const users = await User.query()
+        .apply((scopes) => {
+          scopes.account(currentUser),
+          scopes.filters(filters)
+        })
+        .paginate(page, perPage)
       return response.ok(users)
     } catch (error) {
-      return response.badRequest({ error: 'Users not found' })
+      throw error
+    }
+  }
+
+/**
+  *  Create new user
+  *  @return Object - user object
+  */
+  public async create({ auth, request, response }: HttpContext) {
+    try {
+      const currentUser = auth.getUserOrFail()
+      const payload = await request.validateUsing(registerValidator)
+      const user = await User.create({ ...payload, accountId: currentUser.accountId})
+      return response.ok(user)
+    } catch (error) {
+      throw error
     }
   }
 
@@ -43,17 +70,17 @@ export default class UsersController {
   */
   public  async update({ auth, request, response, params, bouncer }: HttpContext) {
     try {
-      const validator = auth.user?.profil === 'admin' || auth.user?.profil === 'superadmin'  ? updateUserAdmin : updateUser
+      const currentUser = auth.getUserOrFail()
+      const validator = getUserValidator(currentUser.profil)
       const payload = await request.validateUsing(validator)
       const user = await User.findOrFail(params.id)
-
       if (await bouncer.with(UserPolicy).denies('edit', user)) {
         return response.badRequest({ error: 'Cannot edit the user' })
       }
       await user.merge(payload).save()
       return response.ok(user)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -71,7 +98,7 @@ export default class UsersController {
       await user.delete()
       return response.json({ message: 'User deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: 'User not found' })
+      throw error
     }
   }
 }

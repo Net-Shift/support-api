@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import { registerValidator, loginValidator, forgotPasswordValidator, resetPasswordValidator } from '#validators/auth'
+import { loginValidator, forgotPasswordValidator, resetPasswordValidator } from '#validators/auth'
 import resetPasswordNotification from '#mails/reset_password_notification'
 // import Ws from '#services/ws'
 
@@ -11,8 +11,8 @@ export default class AuthController {
   */
   public async login({ request, response }: HttpContext) {
     try {
-      const { email, password } = await request.validateUsing(loginValidator)
-      const user = await User.verifyCredentials(email, password)
+      const { loginId, password } = await request.validateUsing(loginValidator)
+      const user = await User.verifyCredentials(loginId, password)
       const token = await User.accessTokens.create(user)
       // Ws.io?.emit('ping', { message: 'pong send by adonisJS' })
       // Ws.io?.to(`room:notifTypeOne:accountId:${user?.accountId}`).emit('test', { message: 'test send by adonisJS' })
@@ -21,21 +21,7 @@ export default class AuthController {
         ...user.serialize(),
       })
     } catch (error) {
-      return response.badRequest({ error: error })
-    }
-  }
-
-/**
-  *  Register new user
-  *  @return Object - User object
-  */
-  public async register({ request, response }: HttpContext) {
-    try {
-      const payload = await request.validateUsing(registerValidator)
-      const user = await User.create(payload)
-      return response.created(user)
-    } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
