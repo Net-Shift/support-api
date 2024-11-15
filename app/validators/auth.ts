@@ -7,8 +7,20 @@ export const loginValidator = vine.compile(
   })
 )
 
-export const registerValidator = vine.compile(
+
+export const forgotPasswordValidator = vine.compile(
   vine.object({
+    email: vine.string().email()
+  })
+)
+
+export const resetPasswordValidator = vine.compile(
+  vine.object({
+    password: vine.string().minLength(8).maxLength(32)
+  })
+)
+
+export const registerValidator = vine.object({
     firstName: vine.string().minLength(3).maxLength(64),
     lastName: vine.string().minLength(3).maxLength(64),
     email: vine
@@ -26,21 +38,25 @@ export const registerValidator = vine.compile(
       .unique(async (query, field) => {
         const user = await query.from('users').where('login_id', field).first()
         return !user
-    })
+      })
+})
+
+export const createUser = vine.compile(
+  vine.object({
+    ...registerValidator.getProperties()
   })
 )
 
-export const forgotPasswordValidator = vine.compile(
+export const createUserAdmin = vine.compile(
   vine.object({
-    email: vine.string().email()
+    ...registerValidator.getProperties(),
+    accountId: vine.string().optional()
   })
 )
 
-export const resetPasswordValidator = vine.compile(
-  vine.object({
-    password: vine.string().minLength(8).maxLength(32)
-  })
-)
+export function getCreateValidator(profil: string) {
+  return profil === 'superadmin' ? createUserAdmin : (createUser as typeof createUserAdmin)
+}
 
 const baseUserSchema = vine.object({
   address: vine.object({
@@ -74,7 +90,7 @@ export const updateUserAdmin = vine.compile(
   })
 )
 
-export function getUserValidator(profil: string) {
+export function getUpdateValidator(profil: string) {
   return (profil === 'superadmin' || profil === 'admin') ? updateUserAdmin : updateUser
 }
 

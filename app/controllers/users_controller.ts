@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import { getUserValidator, registerValidator } from '#validators/auth'
+import { getUpdateValidator, getCreateValidator } from '#validators/auth'
 import UserPolicy from '#policies/user_policy'
 
 export default class UsersController {
@@ -55,8 +55,10 @@ export default class UsersController {
   public async create({ auth, request, response }: HttpContext) {
     try {
       const currentUser = auth.getUserOrFail()
-      const payload = await request.validateUsing(registerValidator)
-      const user = await User.create({ ...payload, accountId: currentUser.accountId})
+      const validator = getCreateValidator(currentUser.profil)
+      let payload = await request.validateUsing(validator)
+      payload.accountId ??= currentUser.accountId
+      const user = await User.create(payload)
       return response.ok(user)
     } catch (error) {
       throw error
@@ -71,7 +73,7 @@ export default class UsersController {
   public  async update({ auth, request, response, params, bouncer }: HttpContext) {
     try {
       const currentUser = auth.getUserOrFail()
-      const validator = getUserValidator(currentUser.profil)
+      const validator = getUpdateValidator(currentUser.profil)
       const payload = await request.validateUsing(validator)
       const user = await User.findOrFail(params.id)
       if (await bouncer.with(UserPolicy).denies('edit', user)) {
