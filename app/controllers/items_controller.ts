@@ -7,9 +7,16 @@ export default class ItemsController {
   *  Get item by id
   *  @return Object - Item object
   */
-  public async getOne({ params, response }: HttpContext) {
+  public async getOne({ auth, params, response }: HttpContext) {
     try {
-      const item = await Item.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const item = await Item.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id),
+          scopes.preload()
+        })
+        .firstOrFail()
       return response.ok(item)
     } catch (error) {
       return response.badRequest({ error: error })
@@ -20,14 +27,16 @@ export default class ItemsController {
   *  Get all items
   *  @return Array - Array of items
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
+      const user = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
       const items = await Item.query()
-        .select()
-        .preload('orderItems')
-        .preload('itemType', (query) => {
-          query.select('name')
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.filters(filters)
         })
+        .paginate(page, perPage)
       return response.ok(items)
     } catch (error) {
       console.log('error', error)

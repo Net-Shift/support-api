@@ -57,8 +57,7 @@ export default class UsersController {
       const currentUser = auth.getUserOrFail()
       const validator = getCreateValidator(currentUser.profil)
       let payload = await request.validateUsing(validator)
-      payload.accountId ??= currentUser.accountId
-      const user = await User.create(payload)
+      const user = await User.create({...payload, accountId: currentUser.accountId})
       return response.ok(user)
     } catch (error) {
       throw error

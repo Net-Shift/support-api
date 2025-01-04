@@ -38,7 +38,9 @@ export const registerValidator = vine.object({
       .unique(async (query, field) => {
         const user = await query.from('users').where('login_id', field).first()
         return !user
-      })
+      }),
+    profil: vine.enum(['superadmin', 'admin', 'manager', 'server', 'chef']),
+    phone: vine.number().optional()
 })
 
 export const createUser = vine.compile(
@@ -69,11 +71,21 @@ const baseUserSchema = vine.object({
   email: vine
     .string()
     .email()
-    .unique(async (query, field) => {
-      const user = await query.from('users').where('email', field).first()
+    .unique(async (query, field, value) => {
+      const user = await query.from('users').where('email', field).whereNot('id', value.parent.id).first()
       return !user
     }).optional(),
-  password: vine.string().minLength(8).maxLength(32).optional()
+  password: vine.string().minLength(8).maxLength(32).optional(),
+  profil: vine.enum(['superadmin', 'admin', 'manager', 'server', 'chef']),
+  loginId: vine
+    .string()
+    .minLength(8)
+    .maxLength(32)
+    .unique(async (query, field, value) => {
+      const user = await query.from('users').where('login_id', field).whereNot('id', value.parent.id).first()
+      return !user
+    }),
+  phone: vine.number().optional()
 })
 
 export const updateUser = vine.compile(
@@ -85,8 +97,6 @@ export const updateUser = vine.compile(
 export const updateUserAdmin = vine.compile(
   vine.object({
     ...baseUserSchema.getProperties(),
-    profil: vine.string().notSameAs('superadmin').optional(),
-    loginId: vine.string().optional()
   })
 )
 

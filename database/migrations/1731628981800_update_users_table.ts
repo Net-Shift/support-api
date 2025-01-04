@@ -6,6 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.alterTable(this.tableName, (table) => {
       table.string('login_id').unique()
+      table.integer('phone').nullable()
     })
   }
 
