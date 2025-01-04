@@ -34,7 +34,8 @@ export default class ItemsController {
       const items = await Item.query()
         .apply((scopes) => {
           scopes.account(user),
-          scopes.filters(filters)
+          scopes.filters(filters),
+          scopes.preload()
         })
         .paginate(page, perPage)
       return response.ok(items)
