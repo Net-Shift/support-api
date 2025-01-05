@@ -120,9 +120,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [ItemTypeController, 'getOne'])
     router.get('', [ItemTypeController, 'getAll'])
-    router.post('create', [ItemTypeController, 'create'])
-    router.put('update/:id', [ItemTypeController, 'update'])
-    router.delete('delete/:id', [ItemTypeController, 'delete'])
+    router.post('', [ItemTypeController, 'create'])
+    router.put('/:id', [ItemTypeController, 'update'])
+    router.delete('/:id', [ItemTypeController, 'delete'])
   }).prefix('itemType').use([middleware.auth(), middleware.bouncer(isAdmin)])
 
 /**
