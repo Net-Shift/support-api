@@ -27,6 +27,27 @@ export default class ItemsController {
   *  Get all items
   *  @return Array - Array of items
   */
+
+  // const transformQuery = (query) => {
+  //   const result = {}
+    
+  //   Object.entries(query).forEach(([key, value]) => {
+  //     if (key.includes('_')) {
+  //       const [base, prop] = key.split('_')
+  //       if (!result[base]) result[base] = {}
+        
+  //       if (prop === 'values') {
+  //         result[base][prop] = Array.isArray(value) ? value : [value]
+  //       } else {
+  //         result[base][prop] = value
+  //       }
+  //     } else {
+  //       result[key] = value
+  //     }
+  //   })
+    
+  //   return result
+  // }
   public async getAll({ auth, request, response }: HttpContext) {
     try {
       const user = auth.getUserOrFail()
