@@ -40,7 +40,7 @@ export const registerValidator = vine.object({
         return !user
       }),
     profil: vine.enum(['superadmin', 'admin', 'manager', 'server', 'chef']),
-    phone: vine.number().optional()
+    phone: vine.string().optional()
 })
 
 export const createUser = vine.compile(
@@ -85,7 +85,7 @@ const baseUserSchema = vine.object({
       const user = await query.from('users').where('login_id', field).whereNot('id', value.parent.id).first()
       return !user
     }),
-  phone: vine.number().optional()
+  phone: vine.string().optional()
 })
 
 export const updateUser = vine.compile(
