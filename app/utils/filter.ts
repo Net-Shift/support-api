@@ -56,6 +56,7 @@ type Filter =
       // Comparaison filter
       if (typeof filter === 'object' && 'operator' in filter) {
         const { operator, value, values } = filter as any
+        const filteredValues = values && values.length ? values.filter((value: string | number) => value !== null && value !== 'null') : []
         switch (operator) {
           case 'in':
             query = query.whereIn(field, values)
@@ -64,10 +65,10 @@ type Filter =
             query = query.whereNotIn(field, values)
             break
           case 'between':
-            query = query.whereBetween(field, values)
+            if (filteredValues.length > 1) query = query.whereBetween(field, filteredValues)
             break
           case 'not between':
-            query = query.whereNotBetween(field, values)
+            if (filteredValues.length > 1) query = query.whereNotBetween(field, filteredValues)
             break
           case 'like':
           case 'not like':
