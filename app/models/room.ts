@@ -4,7 +4,7 @@ import { column, beforeCreate, belongsTo, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Account from '#models/account'
 import Table from '#models/table'
-import BaseModel from '#models/base'
+import BaseModel from './base.js'
 
 export default class Room extends BaseModel {
   @column({ isPrimary: true })

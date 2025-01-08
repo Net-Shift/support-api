@@ -3,14 +3,14 @@ import vine from '@vinejs/vine'
 
 const baseTableSchema = vine.object({
   name: vine.string(),
-  xStart: vine.number(),
-  yStart: vine.number(),
-  width: vine.number(),
-  height: vine.number(),
-  statusId: vine
+  xStart: vine.number().optional(),
+  yStart: vine.number().optional(),
+  width: vine.number().optional(),
+  length: vine.number().optional(),
+  status: vine
     .string()
     .exists(async (query, field) => {
-      const status = await query.from('statuses').where('id', field).first()
+      const status = await query.from('statuses').where('name', field).first()
       return !!status
     })
     .optional()

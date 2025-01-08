@@ -30,10 +30,10 @@ export const registerValidator = vine.object({
         const user = await query.from('users').where('email', field).first()
         return !user
       }).optional(),
-    password: vine.string().minLength(8).maxLength(32),
+    password: vine.string().minLength(3).maxLength(32),
     loginId: vine
       .string()
-      .minLength(8)
+      .minLength(3)
       .maxLength(32)
       .unique(async (query, field) => {
         const user = await query.from('users').where('login_id', field).first()
