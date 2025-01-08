@@ -6,7 +6,7 @@ const baseTableSchema = vine.object({
   xStart: vine.number().optional(),
   yStart: vine.number().optional(),
   width: vine.number().optional(),
-  length: vine.number().optional(),
+  height: vine.number().optional(),
   status: vine
     .string()
     .exists(async (query, field) => {
@@ -29,7 +29,12 @@ export const createTable = vine.compile(
 )
 
 export const updateTable = vine.compile(
-  vine.object({
-    ...baseTableSchema.getProperties(),
-  })
+  vine.object(
+    Object.fromEntries(
+      Object.entries(baseTableSchema.getProperties()).map(([key, value]) => [
+        key,
+        value.optional()
+      ])
+    )
+  )
 )
