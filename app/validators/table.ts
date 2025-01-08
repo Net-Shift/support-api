@@ -3,10 +3,10 @@ import vine from '@vinejs/vine'
 
 const baseTableSchema = vine.object({
   name: vine.string(),
-  xStart: vine.number().optional(),
-  yStart: vine.number().optional(),
-  width: vine.number().optional(),
-  length: vine.number().optional(),
+  xStart: vine.number(),
+  yStart: vine.number(),
+  width: vine.number(),
+  height: vine.number(),
   statusId: vine
     .string()
     .exists(async (query, field) => {

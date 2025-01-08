@@ -24,7 +24,7 @@ export default class Table extends BaseModel {
   declare width: number
 
   @column()
-  declare length: number
+  declare height: number
 
   @column()
   declare roomId: string
