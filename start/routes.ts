@@ -48,9 +48,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [RoomController, 'getOne'])
     router.get('', [RoomController, 'getAll'])
-    router.post('create', [RoomController, 'create']).use(middleware.bouncer(isAdmin))
-    router.put('update/:id', [RoomController, 'update']).use(middleware.bouncer(isAdmin))
-    router.delete('delete/:id', [RoomController, 'delete']).use(middleware.bouncer(isAdmin))
+    router.post('', [RoomController, 'create']).use(middleware.bouncer(isAdmin))
+    router.put('/:id', [RoomController, 'update']).use(middleware.bouncer(isAdmin))
+    router.delete('/:id', [RoomController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('room').use(middleware.auth())
 
 /**
@@ -60,9 +60,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [TableController, 'getOne'])
     router.get('', [TableController, 'getAll'])
-    router.post('create', [TableController, 'create']).use(middleware.bouncer(isAdmin))
-    router.put('update/:id', [TableController, 'update'])
-    router.delete('delete/:id', [TableController, 'delete']).use(middleware.bouncer(isAdmin))
+    router.post('', [TableController, 'create']).use(middleware.bouncer(isAdmin))
+    router.put('/:id', [TableController, 'update'])
+    router.delete('/:id', [TableController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('table').use(middleware.auth())
 
 /**
@@ -72,9 +72,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [OrderController, 'getOne'])
     router.get('', [OrderController, 'getAll'])
-    router.post('create', [OrderController, 'create'])
-    router.put('update/:id', [OrderController, 'update'])
-    router.delete('delete/:id', [OrderController, 'delete']).use(middleware.bouncer(isAdmin))
+    router.post('', [OrderController, 'create'])
+    router.put('/:id', [OrderController, 'update'])
+    router.delete('/:id', [OrderController, 'delete']).use(middleware.bouncer(isAdmin))
   }).prefix('order').use(middleware.auth())
 
 /**
@@ -84,9 +84,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [OrderItemController, 'getOne'])
     router.get('', [OrderItemController, 'getAll'])
-    router.post('create', [OrderItemController, 'create'])
-    router.put('update/:id', [OrderItemController, 'update'])
-    router.delete('delete/:id', [OrderItemController, 'delete'])
+    router.post('', [OrderItemController, 'create'])
+    router.put('/:id', [OrderItemController, 'update'])
+    router.delete('/:id', [OrderItemController, 'delete'])
   }).prefix('orderItem').use(middleware.auth())
 
 /**
@@ -108,9 +108,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [StatusController, 'getOne'])
     router.get('', [StatusController, 'getAll'])
-    router.post('create', [StatusController, 'create'])
-    router.put('update/:id', [StatusController, 'update'])
-    router.delete('delete/:id', [StatusController, 'delete'])
+    router.post('', [StatusController, 'create'])
+    router.put('/:id', [StatusController, 'update'])
+    router.delete('/:id', [StatusController, 'delete'])
   }).prefix('status').use([middleware.auth(), middleware.bouncer(isAdmin)])
 
 /**
@@ -132,9 +132,9 @@ router.group(() => {
   router.group(() => {
     router.get('/:id', [AccountController, 'getOne'])
     router.get('', [AccountController, 'getAll'])
-    router.post('create', [AccountController, 'create'])
-    router.put('update/:id', [AccountController, 'update'])
-    router.delete('delete/:id', [AccountController, 'delete'])
+    router.post('', [AccountController, 'create'])
+    router.put('/:id', [AccountController, 'update'])
+    router.delete('/:id', [AccountController, 'delete'])
   }).prefix('account').use([middleware.auth(), middleware.bouncer(isSuperAdmin)])
 
 }).prefix('api')
