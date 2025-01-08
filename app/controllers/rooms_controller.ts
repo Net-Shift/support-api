@@ -7,12 +7,19 @@ export default class RoomsController {
   *  Get room by id
   *  @return Object - Room object
   */
-  public async getOne({ params, response }: HttpContext) {
+  public async getOne({ auth, params, response }: HttpContext) {
     try {
-      const room = await Room.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const room = await Room.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id),
+          scopes.preload()
+        })
+        .firstOrFail()
       return response.ok(room)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -20,13 +27,20 @@ export default class RoomsController {
   *  Get all rooms
   *  @return Array - Array of rooms
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
-      const rooms = await Room.query().preload('tables')
+      const user = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const rooms = await Room.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.filters(filters),
+          scopes.preload()
+        })
+        .paginate(page, perPage)
       return response.ok(rooms)
     } catch (error) {
-      console.log('error >>', error)
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -41,7 +55,7 @@ export default class RoomsController {
       const room = await Room.create({ ...payload, accountId: user!.accountId})
       return response.ok(room)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -57,7 +71,7 @@ export default class RoomsController {
       await room.save()
       return response.ok(room)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -71,7 +85,7 @@ export default class RoomsController {
       await room.delete()
       return response.json({ message: 'room deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 }

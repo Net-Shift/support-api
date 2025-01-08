@@ -14,14 +14,14 @@ const baseItemSchema = vine.object({
 })
 
 export const createItem = vine.compile(baseItemSchema)
-export const updateItem = vine.compile(baseItemSchema)
-// export const updateItem = vine.compile(
-//   vine.object(
-//     Object.fromEntries(
-//       Object.entries(baseItemSchema.getProperties()).map(([key, value]) => [
-//         key,
-//         value.optional()
-//       ])
-//     )
-//   )
-// )
+// export const updateItem = vine.compile(baseItemSchema)
+export const updateItem = vine.compile(
+  vine.object(
+    Object.fromEntries(
+      Object.entries(baseItemSchema.getProperties()).map(([key, value]) => [
+        key,
+        value.optional()
+      ])
+    )
+  )
+)

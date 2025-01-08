@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { BaseModel, column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
+import { column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Order from '#models/order'
 import Account from '#models/account'
 import Item from '#models/item'
 import Status from '#models/status'
+import BaseModel from '#models/base'
 
 export default class OrderItem extends BaseModel {
   @column({ isPrimary: true })

@@ -19,7 +19,7 @@ export default class ItemsController {
         .firstOrFail()
       return response.ok(item)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -61,8 +61,7 @@ export default class ItemsController {
         .paginate(page, perPage)
       return response.ok(items)
     } catch (error) {
-      console.log('error', error)
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -77,8 +76,7 @@ export default class ItemsController {
       const item = await Item.create({ ...payload, accountId: user!.accountId})
       return response.ok(item)
     } catch (error) {
-      console.log('error', error)
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -94,7 +92,7 @@ export default class ItemsController {
       await item.save()
       return response.ok(item)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -108,7 +106,7 @@ export default class ItemsController {
       await item.delete()
       return response.json({ message: 'item deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 }

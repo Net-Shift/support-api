@@ -7,12 +7,19 @@ export default class OrdersController {
   *  Get order by id
   *  @return Object - Order object
   */
-  public async getOne({ params, response }: HttpContext) {
+  public async getOne({ auth, params, response }: HttpContext) {
     try {
-      const order = await Order.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const order = await Order.query()
+      .apply((scopes) => {
+        scopes.account(user),
+        scopes.id(params.id),
+        scopes.preload()
+      })
+      .firstOrFail()
       return response.ok(order)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -20,12 +27,20 @@ export default class OrdersController {
   *  Get all orders
   *  @return Array - Array of orders
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
-      const orders = await Order.query().preload('table').preload('orderItems').preload('status')
+      const user = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const orders = await Order.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.filters(filters),
+          scopes.preload()
+        })
+        .paginate(page, perPage)
       return response.ok(orders)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -40,8 +55,7 @@ export default class OrdersController {
       const order = await Order.create({ ...payload, accountId: user!.accountId})
       return response.ok(order)
     } catch (error) {
-      console.log('error', error)
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -57,7 +71,7 @@ export default class OrdersController {
       await order.save()
       return response.ok(order)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -71,7 +85,7 @@ export default class OrdersController {
       await order.delete()
       return response.json({ message: 'order deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 }

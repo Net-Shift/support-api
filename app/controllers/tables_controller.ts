@@ -7,9 +7,16 @@ export default class TablesController {
   *  Get table by id
   *  @return Object - Table object
   */
-  public async getOne({ params, response }: HttpContext) {
+  public async getOne({ auth, params, response }: HttpContext) {
     try {
-      const table = await Table.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const table = await Table.query()
+      .apply((scopes) => {
+        scopes.account(user),
+        scopes.id(params.id),
+        scopes.preload()
+      })
+      .firstOrFail()
       return response.ok(table)
     } catch (error) {
       throw error
@@ -20,9 +27,17 @@ export default class TablesController {
   *  Get all tables
   *  @return Array - Array of tables
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
-      const tables = await Table.query().preload('status').preload('orders')
+      const user = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const tables = await Table.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.filters(filters),
+          scopes.preload()
+        })
+        .paginate(page, perPage)
       return response.ok(tables)
     } catch (error) {
       throw error
