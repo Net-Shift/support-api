@@ -12,7 +12,7 @@ export default class TablesController {
       const table = await Table.findOrFail(params.id)
       return response.ok(table)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -25,7 +25,7 @@ export default class TablesController {
       const tables = await Table.query().preload('status').preload('orders')
       return response.ok(tables)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -40,7 +40,8 @@ export default class TablesController {
       const table = await Table.create({ ...payload, accountId: user!.accountId})
       return response.ok(table)
     } catch (error) {
-      return response.badRequest({ error: error })
+      console.log(error)
+      throw error
     }
   }
 
@@ -56,7 +57,7 @@ export default class TablesController {
       await table.save()
       return response.ok(table)
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -70,7 +71,7 @@ export default class TablesController {
       await table.delete()
       return response.json({ message: 'table deleted successfully' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 }
