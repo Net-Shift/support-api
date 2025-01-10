@@ -35,7 +35,7 @@ export default class OrdersController {
         .apply((scopes) => {
           scopes.account(user),
           scopes.filters(filters),
-          scopes.preload()
+          scopes.preload(['orderItems.item'])
         })
         .paginate(page, perPage)
       return response.ok(orders)

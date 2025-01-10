@@ -2,7 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import { loginValidator, forgotPasswordValidator, resetPasswordValidator } from '#validators/auth'
 import resetPasswordNotification from '#mails/reset_password_notification'
-// import Ws from '#services/ws'
 
 export default class AuthController {
 /**
@@ -14,8 +13,6 @@ export default class AuthController {
       const { loginId, password } = await request.validateUsing(loginValidator)
       const user = await User.verifyCredentials(loginId, password)
       const token = await User.accessTokens.create(user)
-      // Ws.io?.emit('ping', { message: 'pong send by adonisJS' })
-      // Ws.io?.to(`room:notifTypeOne:accountId:${user?.accountId}`).emit('test', { message: 'test send by adonisJS' })
       return response.ok({
         token: token,
         ...user.serialize(),
