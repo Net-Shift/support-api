@@ -3,7 +3,7 @@ import vine from '@vinejs/vine'
 export const loginValidator = vine.compile(
   vine.object({
     loginId: vine.string(),
-    password: vine.string().minLength(8).maxLength(32),
+    password: vine.string().minLength(3).maxLength(32),
   })
 )
 
@@ -16,7 +16,7 @@ export const forgotPasswordValidator = vine.compile(
 
 export const resetPasswordValidator = vine.compile(
   vine.object({
-    password: vine.string().minLength(8).maxLength(32)
+    password: vine.string().minLength(3).maxLength(32)
   })
 )
 
@@ -75,11 +75,11 @@ const baseUserSchema = vine.object({
       const user = await query.from('users').where('email', field).whereNot('id', value.parent.id).first()
       return !user
     }).optional(),
-  password: vine.string().minLength(8).maxLength(32).optional(),
+  password: vine.string().minLength(3).maxLength(32).optional(),
   profil: vine.enum(['superadmin', 'admin', 'manager', 'server', 'chef']),
   loginId: vine
     .string()
-    .minLength(8)
+    .minLength(3)
     .maxLength(32)
     .unique(async (query, field, value) => {
       const user = await query.from('users').where('login_id', field).whereNot('id', value.parent.id).first()
