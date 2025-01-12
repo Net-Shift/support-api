@@ -7,13 +7,6 @@ const baseOrderSchema = vine.object({
       const status = await query.from('statuses').where('id', field).first()
       return !!status
     })
-    .optional(),
-  itemTypeId: vine
-    .string()
-    .exists(async (query, field) => {
-      const itemType = await query.from('item_types').where('id', field).first()
-      return !!itemType
-    })
     .optional()
 })
 

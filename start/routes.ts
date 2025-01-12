@@ -17,7 +17,6 @@ const ItemTypeController = () => import('#controllers/item_types_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 
 transmit.registerRoutes()
-// transmit.broadcast('global', { message: 'Hello' })
 
 router.group(() => {
 

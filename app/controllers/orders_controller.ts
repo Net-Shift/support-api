@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Order from '#models/order'
 import { createOrder, updateOrder } from '#validators/order'
+import transmit from '@adonisjs/transmit/services/main'
 
 export default class OrdersController {
 /**
@@ -35,7 +36,7 @@ export default class OrdersController {
         .apply((scopes) => {
           scopes.account(user),
           scopes.filters(filters),
-          scopes.preload(['orderItems.item'])
+          scopes.preload(['orderItems.item', 'table', 'status'])
         })
         .paginate(page, perPage)
       return response.ok(orders)
@@ -53,6 +54,7 @@ export default class OrdersController {
       const payload = await request.validateUsing(createOrder)
       const user = auth.getUserOrFail()
       const order = await Order.create({ ...payload, accountId: user!.accountId})
+      transmit.broadcast('global', { newOrder: order.toJSON() })
       return response.ok(order)
     } catch (error) {
       throw error
@@ -63,9 +65,16 @@ export default class OrdersController {
   *  Update order 
   *  @return Object - Updated order object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const order = await Order.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const order = await Order.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id),
+          scopes.preload(['orderItems.item', 'table', 'status'])
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateOrder)
       order.merge(payload)
       await order.save()
