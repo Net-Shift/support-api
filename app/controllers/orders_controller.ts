@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Order from '#models/order'
 import { createOrder, updateOrder } from '#validators/order'
-import transmit from '@adonisjs/transmit/services/main'
+import Ws from '#services/ws'
 
 export default class OrdersController {
 /**
@@ -54,7 +54,7 @@ export default class OrdersController {
       const payload = await request.validateUsing(createOrder)
       const user = auth.getUserOrFail()
       const order = await Order.create({ ...payload, accountId: user!.accountId})
-      transmit.broadcast('global', { newOrder: order.toJSON() })
+      Ws.io?.emit('newOrder', order.toJSON())
       return response.ok(order)
     } catch (error) {
       throw error

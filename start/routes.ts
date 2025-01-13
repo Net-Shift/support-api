@@ -1,6 +1,5 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
-import transmit from '@adonisjs/transmit/services/main'
 
 // bouncer
 import { isAdmin, isSuperAdmin } from '#abilities/main'
@@ -15,8 +14,6 @@ const ItemController = () => import('#controllers/items_controller')
 const StatusController = () => import('#controllers/statuses_controller')
 const ItemTypeController = () => import('#controllers/item_types_controller')
 const AccountController = () => import('#controllers/accounts_controller')
-
-transmit.registerRoutes()
 
 router.group(() => {
 

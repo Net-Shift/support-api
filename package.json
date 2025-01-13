@@ -60,11 +60,14 @@
     "@adonisjs/mail": "^9.2.2",
     "@adonisjs/redis": "^9.1.0",
     "@adonisjs/transmit": "^2.0.2",
+    "@socket.io/admin-ui": "^0.5.1",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@vinejs/vine": "^2.1.0",
     "luxon": "^3.5.0",
     "pg": "^8.12.0",
     "redis": "^4.7.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "socket.io": "^4.8.1"
   },
   "hotHook": {
     "boundaries": [
