@@ -17,6 +17,12 @@ export default class Room extends BaseModel {
   declare number: number
 
   @column()
+  declare width: number
+
+  @column()
+  declare height: number
+
+  @column()
   declare accountId: string
 
   @belongsTo(() => Account)

@@ -7,13 +7,6 @@ const baseTableSchema = vine.object({
   yStart: vine.number().optional(),
   width: vine.number().optional(),
   height: vine.number().optional(),
-  status: vine
-    .string()
-    .exists(async (query, field) => {
-      const status = await query.from('statuses').where('name', field).first()
-      return !!status
-    })
-    .optional()
 })
 
 export const createTable = vine.compile(

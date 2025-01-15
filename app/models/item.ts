@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { column, belongsTo, hasMany, beforeCreate } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import BaseModel from '#models/base'
 import Account from '#models/account'
-import OrderItem from '#models/order_item'
 import ItemType from '#models/item_type'
 
 export default class Item extends BaseModel {
@@ -22,9 +21,6 @@ export default class Item extends BaseModel {
 
   @column()
   declare price: number
-
-  @hasMany(() => OrderItem)
-  declare orderItems: HasMany<typeof OrderItem>
 
   @column()
   declare itemTypeId: string

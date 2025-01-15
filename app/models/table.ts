@@ -5,7 +5,6 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Room from '#models/room'
 import Account from '#models/account'
 import Order from '#models/order'
-import Status from '#models/status'
 import BaseModel from '#models/base'
 
 export default class Table extends BaseModel {
@@ -35,12 +34,6 @@ export default class Table extends BaseModel {
 
   @hasMany(() => Order)
   declare orders: HasMany<typeof Order>
-
-  @column()
-  declare statusId: string
-
-  @belongsTo(() => Status)
-  declare status: BelongsTo<typeof Status>
 
   @column()
   declare accountId: string

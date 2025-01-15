@@ -5,8 +5,7 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Table from '#models/table'
 import Account from '#models/account'
 import OrderItem from '#models/order_item'
-import Status from '#models/status'
-// import ItemType from '#models/item_type'
+
 import BaseModel from '#models/base'
 
 export default class Order extends BaseModel {
@@ -23,16 +22,7 @@ export default class Order extends BaseModel {
   declare orderItems: HasMany<typeof OrderItem>
 
   @column()
-  declare statusId: string
-
-  @belongsTo(() => Status)
-  declare status: BelongsTo<typeof Status>
-
-  // @column()
-  // declare itemTypeId: string
-
-  // @belongsTo(() => ItemType)
-  // declare itemType: BelongsTo<typeof ItemType>
+  declare status: string
 
   @column()
   declare accountId: string

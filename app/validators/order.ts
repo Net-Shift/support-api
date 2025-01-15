@@ -1,13 +1,7 @@
 import vine from '@vinejs/vine'
 
 const baseOrderSchema = vine.object({
-  statusId: vine
-    .string()
-    .exists(async (query, field) => {
-      const status = await query.from('statuses').where('id', field).first()
-      return !!status
-    })
-    .optional()
+  status: vine.enum(['draft', 'pending', 'inprogress', 'ready', 'terminated', 'error']),
 })
 
 export const createOrder = vine.compile(

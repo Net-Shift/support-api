@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import OrderItem from '#models/order_item'
 import { createOrderItem, updateOrderItem } from '#validators/order_item'
+import Item from '#models/item'
 
 export default class OrderItemsController {
 /**
@@ -52,7 +53,16 @@ export default class OrderItemsController {
     try {
       const payload = await request.validateUsing(createOrderItem)
       const user = auth.getUserOrFail()
-      const orderItem = await OrderItem.create({ ...payload, accountId: user!.accountId})
+      const item = await Item.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(payload.itemId),
+          scopes.preload()
+        })
+        .firstOrFail()
+      delete payload.itemId
+      payload.item = item
+      const orderItem = await OrderItem.create({ ...payload, accountId: user!.accountId })
       return response.ok(orderItem)
     } catch (error) {
       throw error
