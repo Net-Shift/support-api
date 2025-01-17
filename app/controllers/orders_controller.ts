@@ -36,7 +36,7 @@ export default class OrdersController {
         .apply((scopes) => {
           scopes.account(user),
           scopes.filters(filters),
-          scopes.preload(['orderItems.item', 'table', 'status'])
+          scopes.preload(['table'])
         })
         .paginate(page, perPage)
       return response.ok(orders)
@@ -72,7 +72,7 @@ export default class OrdersController {
         .apply((scopes) => {
           scopes.account(user),
           scopes.id(params.id),
-          scopes.preload(['orderItems.item', 'table', 'status'])
+          scopes.preload(['table'])
         })
         .firstOrFail()
       const payload = await request.validateUsing(updateOrder)
