@@ -23,7 +23,7 @@ export const updateOrder = vine.compile(
     .exists(async (query, field) => {
       const table = await query.from('tables').where('id', field).first()
       return !!table
-    }),
+    }).optional(),
     ...baseOrderSchema.getProperties()
   })
 )
