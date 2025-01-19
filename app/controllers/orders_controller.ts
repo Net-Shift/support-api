@@ -77,8 +77,8 @@ export default class OrdersController {
       const payload = await request.validateUsing(updateOrder)
       order.merge(payload)
       await order.save()
-      if (order.status === 'pending') Ws.notifyKitchen(order.accountId, order)
-      if (order.status === 'ready') Ws.notifyServers(order.accountId, order)
+      if (user.profil === 'server' && order.status === 'pending') Ws.notifyKitchen(order.accountId, order)
+      if (user.profil === 'chef' && order.status === 'ready') Ws.notifyServers(order.accountId, order)
       return response.ok(order)
     } catch (error) {
       throw error
