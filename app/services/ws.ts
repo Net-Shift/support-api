@@ -1,15 +1,14 @@
 import { Server, Socket } from 'socket.io'
 import app from '@adonisjs/core/services/app'
-import redis from '@adonisjs/redis/services/main'
 import server from '@adonisjs/core/services/server'
 import { HttpContext } from '@adonisjs/core/http'
 import { instrument } from "@socket.io/admin-ui" 
-import { cuid } from '@adonisjs/core/helpers'
 import authConfig from '#config/auth'
+import User from '#models/user'
 
 interface ExtendedSocket extends Socket {
   sessionId?: string;
-  userId?: string;
+  user?: User;
 }
 
 class Ws {
@@ -34,37 +33,22 @@ class Ws {
     this.io.use(async (socket: ExtendedSocket, next) => {
       const token = socket.handshake.auth.token
       const user =  await this.authenticateUser(token)
-      if (!user) {
-        return next(new Error("invalid token"))
-      }
+      if (!user) return next(new Error("invalid token"))
+      socket.user = user as User
       next()
     })
 
     // connection
     this.io.on('connection', async (socket: ExtendedSocket) => {
-      const token = socket.handshake.auth.token
-      const user =  await this.authenticateUser(token)
-      const sessionId = socket.handshake.auth.sessionId
-      if (sessionId) {
-        const savedSocketId = await redis.get(`user:socketId:${user?.id}`)
-        if (savedSocketId) {
-          socket.sessionId = savedSocketId
-          socket.userId = user?.id
-        }
-      }
-      socket.sessionId = cuid()
-      socket.userId = user?.id
-      await redis.set(`user:socketId:${socket.userId}`, socket.sessionId)
-  
-      socket.emit('session', { sessionId: socket.sessionId})
-      // socket.join(`channel:notifTypeOne:accountId:${user?.accountId}`)
-      // socket.join(`channel:notifTypeTwo:accountId:${user?.accountId}`)
+      if (!socket.user) return
+      const user: User = socket.user
+      const accountRoom = `account:${user.accountId}`
+      socket.join(accountRoom)
       socket.on('disconnect', () => {
-        console.log('disconnect')
-      })
+        socket.leave(accountRoom);
+      });
     })
   }
-
 
   private async authenticateUser(token: string) {
     try {
@@ -82,11 +66,17 @@ class Ws {
       return user
 
     } catch (error) {
-      console.log(error)
-      // socket.disconnect()
+      return error
     }
   }
-}
 
+  public notifyKitchen(accountId: string, order: any) {
+    this.io?.to(`account:${accountId}`).emit('order_update', order)
+  }
+
+  public notifyServers(accountId: string, order: any) {
+    this.io?.to(`account:${accountId}`).emit('order_ready', order)
+  }
+}
 
 export default new Ws()

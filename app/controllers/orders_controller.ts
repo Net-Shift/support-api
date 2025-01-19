@@ -54,7 +54,6 @@ export default class OrdersController {
       const payload = await request.validateUsing(createOrder)
       const user = auth.getUserOrFail()
       const order = await Order.create({ ...payload, accountId: user!.accountId})
-      Ws.io?.emit('newOrder', order.toJSON())
       return response.ok(order)
     } catch (error) {
       throw error
@@ -78,6 +77,8 @@ export default class OrdersController {
       const payload = await request.validateUsing(updateOrder)
       order.merge(payload)
       await order.save()
+      if (order.status === 'pending') Ws.notifyKitchen(order.accountId, order)
+      if (order.status === 'ready') Ws.notifyServers(order.accountId, order)
       return response.ok(order)
     } catch (error) {
       throw error
