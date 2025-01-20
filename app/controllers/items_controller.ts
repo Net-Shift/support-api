@@ -74,6 +74,8 @@ export default class ItemsController {
       const payload = await request.validateUsing(createItem)
       const user = auth.getUserOrFail()
       const item = await Item.create({ ...payload, accountId: user!.accountId})
+      if (payload.tags) await item.related('tags').sync(payload.tags); await item.load('tags')
+      await item.refresh()
       return response.ok(item)
     } catch (error) {
       throw error
@@ -84,12 +86,19 @@ export default class ItemsController {
   *  Update item 
   *  @return Object - Updated item object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const item = await Item.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const item = await Item.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id),
+          scopes.preload()
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateItem)
-      item.merge(payload)
-      await item.save()
+      await item.merge(payload).save() 
+      if (payload.tags) await item.related('tags').sync(payload.tags); await item.load('tags')
       return response.ok(item)
     } catch (error) {
       throw error
@@ -100,9 +109,15 @@ export default class ItemsController {
   *  Delete item 
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const item = await Item.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const item = await Item.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await item.delete()
       return response.json({ message: 'item deleted successfully' })
     } catch (error) {

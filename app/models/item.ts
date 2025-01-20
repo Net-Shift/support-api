@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { column, belongsTo, beforeCreate } from '@adonisjs/lucid/orm'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { column, belongsTo, beforeCreate, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import BaseModel from '#models/base'
 import Account from '#models/account'
 import ItemType from '#models/item_type'
+import Tag from '#models/tag'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -27,6 +28,17 @@ export default class Item extends BaseModel {
 
   @belongsTo(() => ItemType)
   declare itemType: BelongsTo<typeof ItemType>
+
+  @manyToMany(() => Tag, {
+    pivotTable: 'item_tags',
+    pivotForeignKey: 'item_id',
+    pivotRelatedForeignKey: 'tag_id',
+  })
+  declare tags: ManyToMany<typeof Tag>
+    constructor() {
+      super()
+      this.tags = [] as any
+    }
 
   @column()
   declare accountId: string
