@@ -13,7 +13,7 @@ export const updateRoom = vine.compile(
   vine.object({
     name: vine.string().optional(),
     number: vine.number().optional(),
-    width: vine.number().optional(),
-    height: vine.number().optional(),
+    width: vine.number(),
+    height: vine.number(),
   })
 )

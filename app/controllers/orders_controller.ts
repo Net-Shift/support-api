@@ -31,13 +31,15 @@ export default class OrdersController {
   public async getAll({ auth, request, response }: HttpContext) {
     try {
       const user = auth.getUserOrFail()
-      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const { page = 1, perPage = 10, sort, ...filters } = request.qs()
+      const [sortField, sortDirection] = sort ? sort.split(':') : ['updated_at', 'asc']
       const orders = await Order.query()
         .apply((scopes) => {
           scopes.account(user),
           scopes.filters(filters),
-          scopes.preload(['table'])
+          scopes.preload(['table', 'orderItems'])
         })
+        .orderBy(sortField, sortDirection)
         .paginate(page, perPage)
       return response.ok(orders)
     } catch (error) {
@@ -54,6 +56,9 @@ export default class OrdersController {
       const payload = await request.validateUsing(createOrder)
       const user = auth.getUserOrFail()
       const order = await Order.create({ ...payload, accountId: user!.accountId})
+      await order.load('table')
+      await order.load('orderItems')
+      Ws.io?.emit('newOrder', order.toJSON())
       return response.ok(order)
     } catch (error) {
       throw error
@@ -71,7 +76,7 @@ export default class OrdersController {
         .apply((scopes) => {
           scopes.account(user),
           scopes.id(params.id),
-          scopes.preload(['table'])
+          scopes.preload(['table', 'orderItems'])
         })
         .firstOrFail()
       const payload = await request.validateUsing(updateOrder)
