@@ -1,7 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Order from '#models/order'
 import { createOrder, updateOrder } from '#validators/order'
-import Ws from '#services/ws'
+import Ws from '#services/websocket/ws'
 
 export default class OrdersController {
 /**
@@ -82,8 +82,8 @@ export default class OrdersController {
       const payload = await request.validateUsing(updateOrder)
       order.merge(payload)
       await order.save()
-      if (user.profil === 'server' && order.status === 'pending') Ws.notifyKitchen(order.accountId, order)
-      if (user.profil === 'chef' && order.status === 'ready') Ws.notifyServers(order.accountId, order)
+      // if (user.profil === 'server' && order.status === 'pending') Ws.emit(order.accountId, EventType.NEW_ORDER, { order })
+      // if (user.profil === 'chef' && order.status === 'ready') Ws.emit(order.accountId, EventType.ORDER_READY, { order })
       return response.ok(order)
     } catch (error) {
       throw error

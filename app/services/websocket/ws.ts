@@ -5,6 +5,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import { instrument } from "@socket.io/admin-ui" 
 import authConfig from '#config/auth'
 import User from '#models/user'
+import { EventType, SocketEvents } from './ws.type.js'
 
 interface ExtendedSocket extends Socket {
   sessionId?: string;
@@ -43,10 +44,20 @@ class Ws {
       if (!socket.user) return
       const user: User = socket.user
       const accountRoom = `account:${user.accountId}`
+      
       socket.join(accountRoom)
+      
+      Object.values(EventType).forEach(eventType => {
+        socket.on(eventType, (data: SocketEvents[typeof eventType]) => {
+          console.log('Received event:', eventType, 'with data:', data)
+          socket.to(accountRoom).emit(eventType, data)
+        })
+      })
+    
       socket.on('disconnect', () => {
-        socket.leave(accountRoom);
-      });
+        socket.leave(accountRoom)
+      })
+    
     })
   }
 
@@ -70,12 +81,13 @@ class Ws {
     }
   }
 
-  public notifyKitchen(accountId: string, order: any) {
-    this.io?.to(`account:${accountId}`).emit('order_update', order)
-  }
-
-  public notifyServers(accountId: string, order: any) {
-    this.io?.to(`account:${accountId}`).emit('order_ready', order)
+  public emit<T extends EventType>(
+    accountId: string, 
+    event: T,
+    data: SocketEvents[T]
+  ) {
+    console.log('Emitting event:', event, 'to account:', accountId, 'with data:', data)
+    this.io?.to(`account:${accountId}`).emit(event, data);
   }
 }
 

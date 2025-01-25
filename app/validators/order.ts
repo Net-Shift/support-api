@@ -1,7 +1,7 @@
 import vine from '@vinejs/vine'
 
 const baseOrderSchema = vine.object({
-  status: vine.enum(['draft', 'pending', 'inprogress', 'ready', 'terminated', 'error']),
+  status: vine.enum(['draft', 'pending', 'inprogress', 'ready', 'served', 'terminated', 'error']),
 })
 
 export const createOrder = vine.compile(

@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 
 const baseOrderItemSchema = vine.object({
   note: vine.string().optional(),
-  status: vine.enum(['draft', 'pending', 'inprogress', 'ready', 'terminated', 'error']),
+  status: vine.enum(['draft', 'pending', 'inprogress', 'ready', 'served', 'terminated', 'error']),
 })
 
 export const createOrderItem = vine.compile(
@@ -28,5 +28,12 @@ export const createOrderItem = vine.compile(
 export const updateOrderItem = vine.compile(
   vine.object({
     ...baseOrderItemSchema.getProperties()
+  })
+)
+
+export const updateManyOrderItemStatus = vine.compile(
+  vine.object({
+    orderItemIds: vine.array(vine.string()),
+    status: vine.enum(['draft', 'pending', 'inprogress', 'ready', 'served', 'terminated', 'error']),
   })
 )
