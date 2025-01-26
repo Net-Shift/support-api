@@ -8,9 +8,15 @@ export default class AccountsController {
   *  Only superadmin can get other account
   *  @return Object - Account object
   */
-  public async getOne({ params, response }: HttpContext) {
+  public async getOne({ auth, params, response }: HttpContext) {
     try {
-      const account = await Account.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const account = await Account.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       return response.ok(account)
     } catch (error) {
       return response.badRequest({ error: error })
@@ -22,9 +28,16 @@ export default class AccountsController {
   *  Only superadmin can get other accounts
   *  @return Array - Array of accounts
   */
-  public async getAll({ response }: HttpContext) {
+  public async getAll({ auth, request, response }: HttpContext) {
     try {
-      const accounts = await Account.query().preload('users').preload('rooms')
+      const user = auth.getUserOrFail()
+      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const accounts = await Account.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.filters(filters)
+        })
+        .paginate(page, perPage)
       return response.ok(accounts)
     } catch (error) {
       return response.badRequest({ error: error })
@@ -51,9 +64,15 @@ export default class AccountsController {
   *  Only superadmin or same admin can update other accounts
   *  @return Object - Updated account object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const account = await Account.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const account = await Account.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateAccount)
       account.merge(payload)
       await account.save()
@@ -68,9 +87,15 @@ export default class AccountsController {
   *  Only superadmin can delete other accounts
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const account = await Account.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const account = await Account.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await account.delete()
       return response.json({ message: 'account deleted successfully' })
     } catch (error) {

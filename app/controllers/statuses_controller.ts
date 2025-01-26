@@ -63,9 +63,15 @@ export default class ItemsController {
   *  Update status 
   *  @return Object - Updated status object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const status = await Status.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const status = await Status.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateStatus)
       status.merge(payload)
       await status.save()
@@ -79,9 +85,15 @@ export default class ItemsController {
   *  Delete status 
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const status = await Status.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const status = await Status.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await status.delete()
       return response.json({ message: 'status deleted successfully' })
     } catch (error) {

@@ -94,9 +94,15 @@ export default class OrdersController {
   *  Delete order 
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const order = await Order.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const order = await Order.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await order.delete()
       return response.json({ message: 'order deleted successfully' })
     } catch (error) {

@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { BaseModel, column, beforeCreate, hasMany } from '@adonisjs/lucid/orm'
+import { column, beforeCreate, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
+import BaseModel from '#models/base'
 import User from '#models/user'
 import Room from '#models/room'
 

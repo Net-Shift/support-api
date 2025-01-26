@@ -63,9 +63,15 @@ export default class RoomsController {
   *  Update room 
   *  @return Object - Updated room object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const room = await Room.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const room = await Room.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateRoom)
       room.merge(payload)
       await room.save()
@@ -79,9 +85,15 @@ export default class RoomsController {
   *  Delete room 
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const room = await Room.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const room = await Room.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await room.delete()
       return response.json({ message: 'room deleted successfully' })
     } catch (error) {

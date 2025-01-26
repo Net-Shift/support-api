@@ -64,9 +64,15 @@ export default class TablesController {
   *  Update table 
   *  @return Object - Updated table object
   */
-  public async update({ params, request, response }: HttpContext) {
+  public async update({ auth, params, request, response }: HttpContext) {
     try {
-      const table = await Table.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const table = await Table.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       const payload = await request.validateUsing(updateTable)
       table.merge(payload)
       await table.save()
@@ -80,9 +86,15 @@ export default class TablesController {
   *  Delete table 
   *  @return Object - Success message
   */
-  public async delete({ params, response }: HttpContext) {
+  public async delete({ auth, params, response }: HttpContext) {
     try {
-      const table = await Table.findOrFail(params.id)
+      const user = auth.getUserOrFail()
+      const table = await Table.query()
+        .apply((scopes) => {
+          scopes.account(user),
+          scopes.id(params.id)
+        })
+        .firstOrFail()
       await table.delete()
       return response.json({ message: 'table deleted successfully' })
     } catch (error) {
