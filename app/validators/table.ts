@@ -7,6 +7,7 @@ const baseTableSchema = vine.object({
   yStart: vine.number().optional(),
   width: vine.number().optional(),
   height: vine.number().optional(),
+  seats: vine.number().optional()
 })
 
 export const createTable = vine.compile(

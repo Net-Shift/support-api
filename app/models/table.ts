@@ -27,6 +27,9 @@ export default class Table extends BaseModel {
   declare height: number
 
   @column()
+  declare seats: number
+  
+  @column()
   declare roomId: string
 
   @belongsTo(() => Room)
