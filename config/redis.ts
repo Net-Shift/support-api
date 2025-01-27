@@ -1,14 +1,18 @@
 import { defineConfig } from '@adonisjs/redis'
 import { InferConnections } from '@adonisjs/redis/types'
+import env from '#start/env'
+
+const redisUrl = env.get('REDIS_URL')
+const redisParsedUrl = new URL(redisUrl)
 
 const redisConfig = defineConfig({
   connection: 'main',
 
   connections: {
     main: {
-      host: '127.0.0.1',
-      port: 6379,
-      password: '',
+      host: redisParsedUrl.hostname,
+      port: parseInt(redisParsedUrl.port, 10),
+      password: redisParsedUrl.password || '',
       retryStrategy(times) {
         return times > 10 ? null : times * 50
       },
