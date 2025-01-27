@@ -38,8 +38,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring the mail package
   |----------------------------------------------------------
   */
-  // SMTP_USERNAME: Env.schema.string(),
-  // SMTP_PASSWORD: Env.schema.string(),
+  SMTP_USERNAME: Env.schema.string(),
+  SMTP_PASSWORD: Env.schema.string(),
 
   REDIS_URL: Env.schema.string(),
 })
