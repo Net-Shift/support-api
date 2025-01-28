@@ -17,7 +17,7 @@ export default await Env.create(new URL('../', import.meta.url), {
   APP_KEY: Env.schema.string.optional(),
   HOST: Env.schema.string.optional({ format: 'host' }),
   LOG_LEVEL: Env.schema.enum.optional(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
-  APP_URL: Env.schema.string.optional(),
+  APP_URL: Env.schema.string(),
   API_URL: Env.schema.string(),
   PASSWORD_RESET_PAGE_URL: Env.schema.string(),
   

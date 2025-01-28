@@ -5,7 +5,8 @@ import { HttpContext } from '@adonisjs/core/http'
 import { instrument } from "@socket.io/admin-ui" 
 import authConfig from '#config/auth'
 import User from '#models/user'
-import { EventType, SocketEvents } from './ws.type.js'
+import { EventType, SocketEvents } from '#services/websocket/ws.type'
+import env from '#start/env'
 
 interface ExtendedSocket extends Socket {
   sessionId?: string;
@@ -22,7 +23,7 @@ class Ws {
     this.booted = true
     this.io = new Server(server.getNodeServer(), {
       cors: {
-        origin: ["https://admin.socket.io", "http://localhost:8081"],
+        origin: ["https://admin.socket.io", env.get('APP_URL')],
         credentials: true
       }
     })
