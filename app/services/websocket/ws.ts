@@ -23,7 +23,7 @@ class Ws {
     this.booted = true
     this.io = new Server(server.getNodeServer(), {
       cors: {
-        origin: ["https://admin.socket.io", env.get('APP_URL')],
+        origin: ["https://admin.socket.io", env.get('APP_URL'), "http://localhost:8081"],
         credentials: true
       }
     })
