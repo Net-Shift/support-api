@@ -29,7 +29,7 @@ export default class AuthController {
   public async me({ auth, response }: HttpContext) {
     try {
       const user = auth.getUserOrFail()
-      const result = await User.query().where('id', user.id)
+      const result = await User.query().where('id', user.id).firstOrFail()
       return response.ok(result)
     } catch (error) {
       return response.badRequest({ error: 'User not found' })

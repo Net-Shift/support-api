@@ -69,19 +69,17 @@ export default class OrdersController {
   *  Update order 
   *  @return Object - Updated order object
   */
-  public async update({ auth, params, request, response }: HttpContext) {
+  public async update({ params, request, response }: HttpContext) {
     try {
-      const user = auth.getUserOrFail()
-      const order = await Order.query()
-        .apply((scopes) => {
-          scopes.account(user),
-          scopes.id(params.id),
-          scopes.preload(['table', 'orderItems'])
-        })
-        .firstOrFail()
+      const order = await Order.firstOrFail(params.id)
       const payload = await request.validateUsing(updateOrder)
       order.merge(payload)
       await order.save()
+
+      await order.refresh()
+      await order.load('table')
+      await order.load('orderItems')
+
       // if (user.profil === 'server' && order.status === 'pending') Ws.emit(order.accountId, EventType.NEW_ORDER, { order })
       // if (user.profil === 'chef' && order.status === 'ready') Ws.emit(order.accountId, EventType.ORDER_READY, { order })
       return response.ok(order)
