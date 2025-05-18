@@ -1,24 +1,31 @@
 import User from '#models/user'
 import env from '#start/env'
-import router from '@adonisjs/core/services/router'
 import mail from '@adonisjs/mail/services/main'
+import { randomBytes } from 'node:crypto'
+import { DateTime } from 'luxon'
+import PasswordResetToken  from '#models/password-reset'
 
 export default async function sendResetPasswordNotification(user: User) {
   try {
-    const signedURL = router
-      .builder()
-      .prefixUrl(env.get('API_URL'))
-      .params({ id: user.id, token: encodeURIComponent(user.password) })
-      .makeSigned('resetPassword', { expiresIn: '30 minutes' })
+    const token = randomBytes(32).toString('hex')
+    await PasswordResetToken.create({
+      email: user.email,
+      token,
+      expiresAt: DateTime.now().plus({ hours: 1 }),
+      used: false
+    })
+    const resetUrl = `${env.get('PASSWORD_RESET_PAGE_URL')}?token=${token}`
 
-    const url = `${env.get('PASSWORD_RESET_PAGE_URL')}?token=${encodeURIComponent(signedURL)}`
-    // console.log('url =>', url)
     await mail.send((message) => {
       message
-        .to(('guillaumeleger140@gmail.com')) // user.email
-        .from('guillaumeleger430@gmail.com')
-        .subject('Reset your password')
-        .html(`Click <a href="${url}">here</a> to reset your password.`)
+        .to(user.email)
+        .subject('Réinitialisation de mot de passe')
+        .html(`
+          <h1>Réinitialisation de mot de passe</h1>
+          <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe :</p>
+          <a href="${resetUrl}">Réinitialiser mon mot de passe</a>
+          <p>Ce lien expirera dans 1 heure.</p>
+        `)
     })
   } catch (error) {
     console.log('error', error)

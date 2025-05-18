@@ -1,7 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
-import { loginValidator, forgotPasswordValidator, resetPasswordValidator } from '#validators/auth'
+import { loginValidator, forgotPasswordValidator } from '#validators/auth'
 import resetPasswordNotification from '#mails/reset_password_notification'
+import { DateTime } from 'luxon'
+import PasswordResetToken  from '#models/password-reset'
 
 export default class AuthController {
 /**
@@ -32,7 +34,7 @@ export default class AuthController {
       const result = await User.query().where('id', user.id).firstOrFail()
       return response.ok(result)
     } catch (error) {
-      return response.badRequest({ error: 'User not found' })
+      throw error
     }
   }
 
@@ -48,7 +50,7 @@ export default class AuthController {
       await User.accessTokens.delete(user, token)
       return response.ok({ message: 'Logged out' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -60,11 +62,11 @@ export default class AuthController {
     try {
       const { email } = await request.validateUsing(forgotPasswordValidator)
       const user = await User.findBy('email', email)
-      if (!user) return response.unprocessableEntity({error: "We can't find a user with that e-mail address."})
+      if (!user) throw new Error('Utilisateur non trouvé.')
       await resetPasswordNotification(user)
-      return { success: 'Please check your email inbox (and spam) for a password reset link.' }
+      return response.ok({ message: 'Please check your email inbox (and spam) for a password reset link.' })
     } catch (error) {
-      return response.badRequest({ error: error })
+      throw error
     }
   }
 
@@ -72,18 +74,27 @@ export default class AuthController {
   *  Reset password
   *  @return Object - Success message
   */
-  public async resetPassword({ params, request, response }: HttpContext) {
+  public async resetPassword({ request, response }: HttpContext) {
+    const { token, password } = request.body()
+
     try {
-      if (!request.hasValidSignature()) return response.unprocessableEntity({ error: 'Invalid reset password link.' })
-      const user = await User.find(params.id)
-      if (!user) return response.unprocessableEntity({ error: 'Invalid reset password link.' })
-      if (encodeURIComponent(user.password) !== params.token) return response.unprocessableEntity({ error: 'Invalid reset password link.' })
-      const { password } = await request.validateUsing(resetPasswordValidator)
+      const passwordReset = await PasswordResetToken.query()
+        .where('token', token)
+        .where('expires_at', '>', DateTime.now().toSQL())
+        .first()
+
+      if (!passwordReset) throw new Error('Token invalide ou expiré.')
+
+      const user = await User.findBy('email', passwordReset.email)
+      if (!user) throw new Error('Utilisateur non trouvé.')
+
       user.password = password
       await user.save()
-      return { success: 'Password reset successfully.' }
+
+      await PasswordResetToken.query().where('token', token).delete()
+      return response.ok({ message: 'Mot de passe réinitialisé avec succès.' })
     } catch (error) {
-      return response.unauthorized({ error: error })
+      throw error
     }
   }
 }

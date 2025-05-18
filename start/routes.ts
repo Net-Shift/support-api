@@ -26,9 +26,10 @@ router
         router.post('logout', [AuthController, 'logout']).use(middleware.auth())
         router.get('me', [AuthController, 'me']).use(middleware.auth())
         router.post('forgot-password', [AuthController, 'forgotPassword'])
-        router
-          .post('reset-password/:id/:token', [AuthController, 'resetPassword'])
-          .as('resetPassword')
+        router.post('reset-password', [AuthController, 'resetPassword'])
+        // router
+        //   .post('reset-password/:id/:token', [AuthController, 'resetPassword'])
+        //   .as('resetPassword')
       })
       .prefix('auth')
 
