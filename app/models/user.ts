@@ -43,6 +43,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare accountId: string
 
+  @column()
+  declare profileImage: string | null
+
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
 
