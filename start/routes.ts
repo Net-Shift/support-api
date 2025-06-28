@@ -14,6 +14,7 @@ const StatusController = () => import('#controllers/statuses_controller')
 const ItemTypeController = () => import('#controllers/item_types_controller')
 const AccountController = () => import('#controllers/accounts_controller')
 const TagController = () => import('#controllers/tags_controller')
+const QrAuthController = () => import('#controllers/qr_auth_controller')
 
 router
   .group(() => {
@@ -23,8 +24,10 @@ router
     router
       .group(() => {
         router.post('login', [AuthController, 'login'])
+        router.post('/qr-login', [QrAuthController, 'qrLogin'])
         router.post('logout', [AuthController, 'logout']).use(middleware.auth())
         router.get('me', [AuthController, 'me']).use(middleware.auth())
+        router.get('/verify-qr-token', [QrAuthController, 'verifyQrToken']).use(middleware.auth())
         router.post('forgot-password', [AuthController, 'forgotPassword'])
         router.post('reset-password', [AuthController, 'resetPassword'])
         // router
@@ -168,6 +171,19 @@ router
       })
       .prefix('tag')
       .use(middleware.auth())
+
+    /**
+     * QR Token routes (Admin only)
+     */
+    router
+      .group(() => {
+        router.post('/user/:id/generate-qr', [QrAuthController, 'generateQrToken'])
+        router.delete('/user/:id/revoke-qr', [QrAuthController, 'revokeQrToken'])
+        router.get('/qr-tokens', [QrAuthController, 'listActiveTokens'])
+      })
+      .prefix('admin')
+      .use([middleware.auth(), middleware.bouncer(isAdmin)])
+
     /**
      * Account routes
      *

@@ -1,19 +1,18 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose, cuid } from '@adonisjs/core/helpers'
-import { column, beforeCreate, belongsTo } from '@adonisjs/lucid/orm'
+import { column, beforeCreate, belongsTo, hasOne } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
 import Account from '#models/account'
 import BaseModel from '#models/base'
-
+import QrToken from './qr_token.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['login_id', 'email'],
   passwordColumnName: 'password',
 })
-
 
 export default class User extends compose(BaseModel, AuthFinder) {
   @column({ isPrimary: true })
@@ -49,6 +48,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
 
+  @hasOne(() => QrToken)
+  declare qrToken: HasOne<typeof QrToken>
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
@@ -60,5 +62,23 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @beforeCreate()
   public static assignCuid(user: User) {
     user.id = cuid()
+  }
+
+  /**
+   * Vefiry if the user has an active QR token
+   * @returns {Promise<boolean>} - Returns true if an active QR token exists, false otherwise
+   */
+  public async hasActiveQrToken(): Promise<boolean> {
+    const qrToken = await QrToken.query().where('user_id', this.id).where('is_active', true).first()
+
+    return !!qrToken
+  }
+
+  /**
+   * Get the active QR token for the user
+   * @returns {Promise<QrToken | null>} - Returns the active QR token if it exists, null otherwise
+   */
+  public async getActiveQrToken(): Promise<QrToken | null> {
+    return await QrToken.query().where('user_id', this.id).where('is_active', true).first()
   }
 }
