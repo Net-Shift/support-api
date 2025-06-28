@@ -150,12 +150,12 @@ router
       .group(() => {
         router.get('/:id', [ItemTypeController, 'getOne'])
         router.get('', [ItemTypeController, 'getAll'])
-        router.post('', [ItemTypeController, 'create'])
-        router.put('/:id', [ItemTypeController, 'update'])
-        router.delete('/:id', [ItemTypeController, 'delete'])
+        router.post('', [ItemTypeController, 'create']).use(middleware.bouncer(isAdmin))
+        router.put('/:id', [ItemTypeController, 'update']).use(middleware.bouncer(isAdmin))
+        router.delete('/:id', [ItemTypeController, 'delete']).use(middleware.bouncer(isAdmin))
       })
       .prefix('itemType')
-      .use([middleware.auth(), middleware.bouncer(isAdmin)])
+      .use([middleware.auth()])
 
     /**
      * Tag routes
