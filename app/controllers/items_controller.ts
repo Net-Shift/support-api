@@ -51,7 +51,7 @@ export default class ItemsController {
   public async getAll({ auth, request, response }: HttpContext) {
     try {
       const user = auth.getUserOrFail()
-      const { page = 1, perPage = 10, ...filters } = request.qs()
+      const { page = 1, perPage = 100, ...filters } = request.qs()
       const items = await Item.query()
         .apply((scopes) => {
           scopes.account(user),

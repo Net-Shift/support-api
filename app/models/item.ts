@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
 import { cuid } from '@adonisjs/core/helpers'
-import { column, belongsTo, beforeCreate, manyToMany } from '@adonisjs/lucid/orm'
+import { column, belongsTo, beforeCreate, manyToMany, afterCreate, afterUpdate, afterDelete } from '@adonisjs/lucid/orm'
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import BaseModel from '#models/base'
 import Account from '#models/account'
+import ModelEventEmitter from '#services/websocket/model_events'
 import ItemType from '#models/item_type'
 import Tag from '#models/tag'
 
@@ -55,6 +56,27 @@ export default class Item extends BaseModel {
   @beforeCreate()
   public static assignCuid(item: Item) {
     item.id = cuid()
+  }
+
+  @afterCreate()
+  public static async emitCreatedEvent(item: Item) {
+    if (item.accountId) {
+      await ModelEventEmitter.emit('Item', 'created', item)
+    }
+  }
+
+  @afterUpdate()
+  public static async emitUpdatedEvent(item: Item) {
+    if (item.accountId) {
+      await ModelEventEmitter.emit('Item', 'updated', item)
+    }
+  }
+
+  @afterDelete()
+  public static async emitDeletedEvent(item: Item) {
+    if (item.accountId) {
+      await ModelEventEmitter.emit('Item', 'deleted', item)
+    }
   }
 }
 

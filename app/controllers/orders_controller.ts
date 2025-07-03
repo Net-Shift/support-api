@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Order from '#models/order'
 import { createOrder, updateOrder } from '#validators/order'
-import Ws from '#services/websocket/ws'
 
 export default class OrdersController {
   /**
@@ -54,7 +53,6 @@ export default class OrdersController {
       const order = await Order.create({ ...payload, accountId: user!.accountId })
       await order.load('table')
       await order.load('orderItems')
-      Ws.io?.emit('newOrder', order.toJSON())
       return response.ok(order)
     } catch (error) {
       throw error
@@ -76,8 +74,6 @@ export default class OrdersController {
       await order.load('table')
       await order.load('orderItems')
 
-      // if (user.profil === 'server' && order.status === 'pending') Ws.emit(order.accountId, EventType.NEW_ORDER, { order })
-      // if (user.profil === 'chef' && order.status === 'ready') Ws.emit(order.accountId, EventType.ORDER_READY, { order })
       return response.ok(order)
     } catch (error) {
       throw error

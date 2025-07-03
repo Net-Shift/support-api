@@ -1,12 +1,13 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose, cuid } from '@adonisjs/core/helpers'
-import { column, beforeCreate, belongsTo, hasOne } from '@adonisjs/lucid/orm'
+import { column, beforeCreate, belongsTo, hasOne, afterCreate, afterUpdate, afterDelete } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import type { BelongsTo, HasOne } from '@adonisjs/lucid/types/relations'
 import Account from '#models/account'
 import BaseModel from '#models/base'
+import ModelEventEmitter from '#services/websocket/model_events'
 import QrToken from './qr_token.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
@@ -62,6 +63,27 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @beforeCreate()
   public static assignCuid(user: User) {
     user.id = cuid()
+  }
+
+  @afterCreate()
+  public static async emitCreatedEvent(user: User) {
+    if (user.accountId) {
+      await ModelEventEmitter.emit('User', 'created', user)
+    }
+  }
+
+  @afterUpdate()
+  public static async emitUpdatedEvent(user: User) {
+    if (user.accountId) {
+      await ModelEventEmitter.emit('User', 'updated', user)
+    }
+  }
+
+  @afterDelete()
+  public static async emitDeletedEvent(user: User) {
+    if (user.accountId) {
+      await ModelEventEmitter.emit('User', 'deleted', user)
+    }
   }
 
   /**

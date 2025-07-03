@@ -5,7 +5,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import { instrument } from "@socket.io/admin-ui" 
 import authConfig from '#config/auth'
 import User from '#models/user'
-import { EventType, SocketEvents } from '#services/websocket/ws.type'
+import ModelEventEmitter from '#services/websocket/model_events'
 import env from '#start/env'
 
 interface ExtendedSocket extends Socket {
@@ -31,6 +31,9 @@ class Ws {
       auth: false
     })
 
+    // Initialiser le ModelEventEmitter avec ce service WebSocket
+    ModelEventEmitter.setWebSocketService(this)
+
     // middleware
     this.io.use(async (socket: ExtendedSocket, next) => {
       const token = socket.handshake.auth.token
@@ -47,18 +50,10 @@ class Ws {
       const accountRoom = `account:${user.accountId}`
       
       socket.join(accountRoom)
-      
-      Object.values(EventType).forEach(eventType => {
-        socket.on(eventType, (data: SocketEvents[typeof eventType]) => {
-          console.log('Received event:', eventType, 'with data:', data)
-          socket.to(accountRoom).emit(eventType, data)
-        })
-      })
     
       socket.on('disconnect', () => {
         socket.leave(accountRoom)
       })
-    
     })
   }
 
@@ -82,12 +77,8 @@ class Ws {
     }
   }
 
-  public emit<T extends EventType>(
-    accountId: string, 
-    event: T,
-    data: SocketEvents[T]
-  ) {
-    console.log('Emitting event:', event, 'to account:', accountId, 'with data:', data)
+  public emitModelEvent(accountId: string, event: string, data: any) {
+    console.log('Emitting model event:', event, 'to account:', accountId, 'with data:', data)
     this.io?.to(`account:${accountId}`).emit(event, data);
   }
 }

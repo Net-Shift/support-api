@@ -2,8 +2,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import OrderItem from '#models/order_item'
 import { createOrderItem, updateManyOrderItemStatus, updateOrderItem } from '#validators/order_item'
 import Item from '#models/item'
-import Ws from '#services/websocket/ws'
-import { EventType } from '#services/websocket/ws.type'
 
 export default class OrderItemsController {
 /**
@@ -97,9 +95,8 @@ export default class OrderItemsController {
   *  Update many orderItem status
   *  @return Object - Updated orderItem object
   */
-  public async updateManyStatus({ auth, request, response }: HttpContext) {
+  public async updateManyStatus({ request, response }: HttpContext) {
     try {
-      const user = auth.getUserOrFail()
       const { orderItemIds, status } = await request.validateUsing(updateManyOrderItemStatus)
       console.log(orderItemIds, status)
       const updatedOrderItems = []
@@ -109,9 +106,6 @@ export default class OrderItemsController {
         await orderItem.save()
         updatedOrderItems.push(orderItem)
       }
-      if (status === 'pending') Ws.emit(user.accountId, EventType.ORDER_ITEMS_PENDING, { orderItems: updatedOrderItems })
-      if (status === 'inprogress') Ws.emit(user.accountId, EventType.ORDER_ITEMS_INPROGRESS, { orderItemIds })
-      if (status === 'ready') Ws.emit(user.accountId, EventType.ORDER_ITEMS_READY, { orderItemIds })
       return response.json({ message: 'orderItems status updated successfully' })
     } catch (error) {
       console.log('error', error)
