@@ -61,6 +61,7 @@ export default class Item extends BaseModel {
   @afterCreate()
   public static async emitCreatedEvent(item: Item) {
     if (item.accountId) {
+      await item.load('itemType')
       await ModelEventEmitter.emit('Item', 'created', item)
     }
   }
@@ -68,6 +69,7 @@ export default class Item extends BaseModel {
   @afterUpdate()
   public static async emitUpdatedEvent(item: Item) {
     if (item.accountId) {
+      await item.load('itemType')
       await ModelEventEmitter.emit('Item', 'updated', item)
     }
   }

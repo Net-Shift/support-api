@@ -41,6 +41,7 @@ export default class UsersController {
           scopes.account(currentUser),
           scopes.filters(filters)
         })
+        .whereNotIn('profil', ['admin', 'superadmin']) // Exclude admin and superadmin profiles
         .paginate(page, perPage)
       return response.ok(users)
     } catch (error) {
