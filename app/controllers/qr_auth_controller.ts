@@ -11,6 +11,61 @@ const qrLoginValidator = vine.compile(
 
 export default class QrAuthController {
   /**
+   * Get existing QR token for a user or generate a new one (Admin only)
+   * GET /admin/users/:id/qr-token
+   */
+  public async getOrGenerateQrToken({ auth, params, response }: HttpContext) {
+    try {
+      const currentUser = auth.getUserOrFail()
+
+      if (currentUser.profil !== 'admin' && currentUser.profil !== 'superadmin') {
+        return response.forbidden({
+          error: 'Seuls les administrateurs peuvent accéder aux QR codes',
+        })
+      }
+
+      const targetUser = await User.query()
+        .apply((scopes) => {
+          scopes.account(currentUser)
+          scopes.id(params.id)
+        })
+        .firstOrFail()
+
+      // Vérifier s'il existe déjà un token actif
+      let qrToken = await QrToken.query()
+        .where('user_id', targetUser.id)
+        .where('is_active', true)
+        .first()
+
+      // Si aucun token actif n'existe, en créer un nouveau
+      if (!qrToken) {
+        qrToken = await QrToken.create({
+          userId: targetUser.id,
+          accountId: currentUser.accountId,
+          isActive: true,
+        })
+      }
+
+      return response.ok({
+        user: {
+          id: targetUser.id,
+          firstName: targetUser.firstName,
+          lastName: targetUser.lastName,
+          profil: targetUser.profil,
+        },
+        qrData: {
+          token: qrToken.token,
+          app: 'fork-it',
+        },
+        createdAt: qrToken.createdAt,
+        isExisting: !!qrToken.id, // Indique si c'est un token existant ou nouveau
+      })
+    } catch (error) {
+      return response.badRequest({ error: 'Impossible de récupérer le QR code' })
+    }
+  }
+
+  /**
    * Generate QR token for a user (Admin only)
    * POST /admin/users/:id/generate-qr
    */
@@ -32,6 +87,15 @@ export default class QrAuthController {
         .firstOrFail()
 
       await QrToken.revokeUserTokens(targetUser.id)
+
+      // Déconnecter l'utilisateur de l'app mobile
+      await User.accessTokens.all(targetUser).then((tokens) => {
+        tokens.forEach((token) => {
+          if (token.name === 'QR Login Token') {
+            User.accessTokens.delete(targetUser, token.identifier)
+          }
+        })
+      })
 
       const qrToken = await QrToken.create({
         userId: targetUser.id,
@@ -133,45 +197,6 @@ export default class QrAuthController {
     }
   }
 
-  /**
-   * Revoke user's QR token (Admin only)
-   * DELETE /admin/users/:id/revoke-qr
-   */
-  public async revokeQrToken({ auth, params, response }: HttpContext) {
-    try {
-      const currentUser = auth.getUserOrFail()
-
-      if (currentUser.profil !== 'admin' && currentUser.profil !== 'superadmin') {
-        return response.forbidden({
-          error: 'Seuls les administrateurs peuvent révoquer des QR codes',
-        })
-      }
-
-      const targetUser = await User.query()
-        .apply((scopes) => {
-          scopes.account(currentUser)
-          scopes.id(params.id)
-        })
-        .firstOrFail()
-
-      await QrToken.revokeUserTokens(targetUser.id)
-
-      await User.accessTokens.all(targetUser).then((tokens) => {
-        tokens.forEach((token) => {
-          if (token.name === 'QR Login Token') {
-            User.accessTokens.delete(targetUser, token.identifier)
-          }
-        })
-      })
-
-      return response.ok({
-        message: 'QR code révoqué avec succès',
-        userId: targetUser.id,
-      })
-    } catch (error) {
-      return response.badRequest({ error: 'Impossible de révoquer le QR code' })
-    }
-  }
 
   /**
    * List active QR tokens (Admin only)

@@ -177,8 +177,8 @@ router
      */
     router
       .group(() => {
+        router.get('/user/:id/qr-token', [QrAuthController, 'getOrGenerateQrToken'])
         router.post('/user/:id/generate-qr', [QrAuthController, 'generateQrToken'])
-        router.delete('/user/:id/revoke-qr', [QrAuthController, 'revokeQrToken'])
         router.get('/qr-tokens', [QrAuthController, 'listActiveTokens'])
       })
       .prefix('admin')

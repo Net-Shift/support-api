@@ -82,6 +82,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @afterDelete()
   public static async emitDeletedEvent(user: User) {
     if (user.accountId) {
+      // Supprimer toutes les sessions actives de l'utilisateur
+      await User.accessTokens.all(user).then((tokens) => {
+        tokens.forEach((token) => {
+          User.accessTokens.delete(user, token.identifier)
+        })
+      })
+      
       await ModelEventEmitter.emit('User', 'deleted', user)
     }
   }
