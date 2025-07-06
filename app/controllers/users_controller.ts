@@ -3,6 +3,138 @@ import User from '#models/user'
 import { getUpdateValidator, getCreateValidator } from '#validators/auth'
 import UserPolicy from '#policies/user_policy'
 
+// Helper function to translate validation messages to French
+function translateValidationMessage(field: string, rule: string, originalMessage: string): string {
+  const translations: Record<string, Record<string, string>> = {
+    firstName: {
+      minLength: 'Le prénom doit contenir au moins 3 caractères',
+      required: 'Le prénom est obligatoire',
+      maxLength: 'Le prénom ne peut pas dépasser 50 caractères'
+    },
+    lastName: {
+      minLength: 'Le nom de famille doit contenir au moins 3 caractères',
+      required: 'Le nom de famille est obligatoire',
+      maxLength: 'Le nom de famille ne peut pas dépasser 50 caractères'
+    },
+    email: {
+      required: 'L\'adresse email est obligatoire',
+      email: 'L\'adresse email n\'est pas valide',
+      maxLength: 'L\'adresse email ne peut pas dépasser 100 caractères'
+    },
+    phone: {
+      required: 'Le numéro de téléphone est obligatoire',
+      minLength: 'Le numéro de téléphone doit contenir au moins 10 caractères',
+      maxLength: 'Le numéro de téléphone ne peut pas dépasser 20 caractères'
+    },
+    loginId: {
+      required: 'L\'identifiant de connexion est obligatoire',
+      minLength: 'L\'identifiant doit contenir au moins 3 caractères',
+      maxLength: 'L\'identifiant ne peut pas dépasser 30 caractères'
+    },
+    password: {
+      required: 'Le mot de passe est obligatoire',
+      minLength: 'Le mot de passe doit contenir au moins 8 caractères',
+      maxLength: 'Le mot de passe ne peut pas dépasser 100 caractères'
+    },
+    profil: {
+      required: 'Le profil est obligatoire',
+      in: 'Le profil sélectionné n\'est pas valide'
+    }
+  }
+  
+  return translations[field]?.[rule] || originalMessage
+}
+
+// Helper function to handle various user creation/update errors
+function handleUserError(error: any, response: any) {
+  // Handle validation errors (VineJS)
+  if (error.code === 'E_VALIDATION_ERROR' && error.status === 422) {
+    const validationErrors = error.messages || []
+    const firstError = validationErrors[0]
+    
+    if (firstError) {
+      const translatedMessage = translateValidationMessage(
+        firstError.field,
+        firstError.rule,
+        firstError.message
+      )
+      
+      return response.status(422).json({
+        error: 'Validation Error',
+        message: translatedMessage,
+        field: firstError.field,
+        statusCode: 422,
+        details: validationErrors.map((err: any) => ({
+          ...err,
+          message: translateValidationMessage(err.field, err.rule, err.message)
+        }))
+      })
+    }
+    
+    return response.status(422).json({
+      error: 'Validation Error',
+      message: 'Les données fournies ne sont pas valides',
+      statusCode: 422,
+      details: validationErrors
+    })
+  }
+  
+  // Handle PostgreSQL unique constraint violations
+  if (error.code === '23505') {
+    const constraintName = error.constraint || ''
+    let message = 'Cette valeur est déjà utilisée'
+    let field = 'unknown'
+    
+    if (constraintName.includes('phone')) {
+      message = 'Ce numéro de téléphone est déjà utilisé'
+      field = 'phone'
+    } else if (constraintName.includes('email')) {
+      message = 'Cette adresse email est déjà utilisée'
+      field = 'email'
+    } else if (constraintName.includes('login_id')) {
+      message = 'Cet identifiant est déjà utilisé'
+      field = 'loginId'
+    }
+    
+    return response.status(409).json({
+      error: 'Conflict',
+      message,
+      field,
+      statusCode: 409
+    })
+  }
+  
+  // Handle "Not Found" errors (ModelNotFoundException)
+  if (error.code === 'E_ROW_NOT_FOUND' || error.status === 404) {
+    return response.status(404).json({
+      error: 'Not Found',
+      message: 'Utilisateur non trouvé',
+      statusCode: 404
+    })
+  }
+  
+  // Handle foreign key constraint violations
+  if (error.code === '23503') {
+    return response.status(400).json({
+      error: 'Bad Request',
+      message: 'Référence invalide - certaines données liées n\'existent pas',
+      statusCode: 400
+    })
+  }
+  
+  // Handle other database errors
+  if (error.code && error.code.startsWith('23')) {
+    return response.status(400).json({
+      error: 'Database Error',
+      message: 'Erreur de base de données - données invalides',
+      statusCode: 400
+    })
+  }
+  
+  // Default: re-throw unknown errors
+  throw error
+}
+
 export default class UsersController {
 /**
   *  Get user by id
@@ -61,7 +193,7 @@ export default class UsersController {
       const user = await User.create({...payload, accountId: currentUser.accountId})
       return response.ok(user)
     } catch (error) {
-      throw error
+      return handleUserError(error, response)
     }
   }
 
@@ -82,7 +214,7 @@ export default class UsersController {
       await user.merge(payload).save()
       return response.ok(user)
     } catch (error) {
-      throw error
+      return handleUserError(error, response)
     }
   }
 
