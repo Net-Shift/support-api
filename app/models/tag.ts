@@ -4,7 +4,7 @@ import { column, beforeCreate, belongsTo, manyToMany } from '@adonisjs/lucid/orm
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import BaseModel from '#models/base'
 import Account from '#models/account'
-import Item from '#models/item'
+import TicketMessage from '#models/ticket_message'
 
 
 export default class Tag extends BaseModel {
@@ -23,12 +23,12 @@ export default class Tag extends BaseModel {
   @belongsTo(() => Account)
   declare account: BelongsTo<typeof Account>
 
-  @manyToMany(() => Item, {
-    pivotTable: 'item_tags',
+  @manyToMany(() => TicketMessage, {
+    pivotTable: 'ticket_messages_tags',
     pivotForeignKey: 'tag_id',
-    pivotRelatedForeignKey: 'item_id',
+    pivotRelatedForeignKey: 'ticket_id',
   })
-  declare items: ManyToMany<typeof Item>
+  declare ticketMessages: ManyToMany<typeof TicketMessage>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

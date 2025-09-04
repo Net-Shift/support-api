@@ -3,7 +3,7 @@ import User from '#models/user'
 import { loginValidator, forgotPasswordValidator } from '#validators/auth'
 import resetPasswordNotification from '#mails/reset_password_notification'
 import { DateTime } from 'luxon'
-import PasswordResetToken  from '#models/password-reset'
+import PasswordResetToken  from '#models/password_reset'
 
 export default class AuthController {
 /**

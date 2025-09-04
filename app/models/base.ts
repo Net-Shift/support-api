@@ -9,6 +9,8 @@ export default class BaseModel extends AdonisBaseModel {
 
   public static account = scope((query, user) => {
     if (user && user.profil !== 'superadmin') {
+      // console.log('=> Filtering by userId', user.id)
+      // console.log('=> Filtering by accountId', user.accountId)
       query.where('accountId', user.accountId)
     }
   })

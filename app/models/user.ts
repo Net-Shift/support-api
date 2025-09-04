@@ -20,7 +20,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare id: string
 
   @column()
-  declare profil: 'superadmin' | 'admin' | 'manager' | 'server' | 'chef'
+  declare profil: string
+
+  @column()
+  declare accountType: 'agent' | 'customer'
 
   @column()
   declare firstName: string | null

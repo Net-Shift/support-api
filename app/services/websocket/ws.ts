@@ -78,7 +78,7 @@ class Ws {
   }
 
   public emitModelEvent(accountId: string, event: string, data: any) {
-    console.log('Emitting model event:', event, 'to account:', accountId, 'with data:', data)
+    // console.log('Emitting model event:', event, 'to account:', accountId, 'with data:', data)
     this.io?.to(`account:${accountId}`).emit(event, data);
   }
 }

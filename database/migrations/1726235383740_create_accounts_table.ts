@@ -7,6 +7,8 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.string('id').notNullable().primary()
       table.string('name').notNullable()
+      table.string('account_type').notNullable()
+      table.string('account_reference_id').references('accounts.id').onUpdate('CASCADE')
       table.timestamp('created_at')
       table.timestamp('updated_at')
     })

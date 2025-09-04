@@ -9,7 +9,7 @@ export default class TagsSchema extends BaseSchema {
       table.string('account_id').unsigned().references('id').inTable('accounts').onDelete('CASCADE')
       table.string('name').notNullable()
       table.string('label').nullable()
-      table.timestamp('created_at').notNullable().defaultTo(this.now())
+      table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
     })
   }

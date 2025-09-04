@@ -131,7 +131,7 @@ export class ModelEventEmitter {
       timestamp: new Date()
     }
 
-    console.log(`Emitting model event: ${event}`, payload)
+    // console.log(`Emitting model event: ${event}`, payload)
     this.websocketService.emitModelEvent(data.accountId || data.account_id, event, payload)
   }
 }

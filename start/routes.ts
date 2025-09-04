@@ -5,16 +5,10 @@ import { isAdmin, isSuperAdmin } from '#abilities/main'
 
 const AuthController = () => import('#controllers/auth_controller')
 const UserController = () => import('#controllers/users_controller')
-const RoomController = () => import('#controllers/rooms_controller')
-const TableController = () => import('#controllers/tables_controller')
-const OrderController = () => import('#controllers/orders_controller')
-const OrderItemController = () => import('#controllers/order_items_controller')
-const ItemController = () => import('#controllers/items_controller')
-const StatusController = () => import('#controllers/statuses_controller')
-const ItemTypeController = () => import('#controllers/item_types_controller')
+const TicketController = () => import('#controllers/tickets_controller')
 const AccountController = () => import('#controllers/accounts_controller')
-const TagController = () => import('#controllers/tags_controller')
 const QrAuthController = () => import('#controllers/qr_auth_controller')
+const TagController = () => import('#controllers/tags_controller')
 
 router
   .group(() => {
@@ -25,11 +19,11 @@ router
       .group(() => {
         router.post('login', [AuthController, 'login'])
         router.post('/qr-login', [QrAuthController, 'qrLogin'])
-        router.post('logout', [AuthController, 'logout']).use(middleware.auth())
-        router.get('me', [AuthController, 'me']).use(middleware.auth())
+        router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
+        router.get('/me', [AuthController, 'me']).use(middleware.auth())
         router.get('/verify-qr-token', [QrAuthController, 'verifyQrToken']).use(middleware.auth())
-        router.post('forgot-password', [AuthController, 'forgotPassword'])
-        router.post('reset-password', [AuthController, 'resetPassword'])
+        router.post('/forgot-password', [AuthController, 'forgotPassword'])
+        router.post('/reset-password', [AuthController, 'resetPassword'])
         // router
         //   .post('reset-password/:id/:token', [AuthController, 'resetPassword'])
         //   .as('resetPassword')
@@ -52,110 +46,32 @@ router
       .use(middleware.auth())
 
     /**
-     * Room routes
+     * Ticket routes
      *
      */
     router
       .group(() => {
-        router.get('/:id', [RoomController, 'getOne'])
-        router.get('', [RoomController, 'getAll'])
-        router.post('', [RoomController, 'create']).use(middleware.bouncer(isAdmin))
-        router.put('/:id', [RoomController, 'update']).use(middleware.bouncer(isAdmin))
-        router.delete('/:id', [RoomController, 'delete']).use(middleware.bouncer(isAdmin))
+        router.get('/:id', [TicketController, 'getOne'])
+        router.get('', [TicketController, 'getAll'])
+        router.post('', [TicketController, 'create'])
+        router.put('/:id', [TicketController, 'update']).use(middleware.bouncer(isAdmin))
+        router.delete('/:id', [TicketController, 'delete']).use(middleware.bouncer(isAdmin))
+        router.post('/:id/reply', [TicketController, 'reply'])
       })
-      .prefix('room')
+      .prefix('ticket')
       .use(middleware.auth())
 
     /**
-     * Table routes
-     *
+     * QR Token routes (Admin only)
      */
     router
       .group(() => {
-        router.get('/:id', [TableController, 'getOne'])
-        router.get('', [TableController, 'getAll'])
-        router.post('', [TableController, 'create']).use(middleware.bouncer(isAdmin))
-        router.put('/:id', [TableController, 'update'])
-        router.delete('/:id', [TableController, 'delete']).use(middleware.bouncer(isAdmin))
+        router.get('/user/:id/qr-token', [QrAuthController, 'getOrGenerateQrToken'])
+        router.post('/user/:id/generate-qr', [QrAuthController, 'generateQrToken'])
+        router.get('/qr-tokens', [QrAuthController, 'listActiveTokens'])
       })
-      .prefix('table')
-      .use(middleware.auth())
-
-    /**
-     * Order routes
-     *
-     */
-    router
-      .group(() => {
-        router.get('/:id', [OrderController, 'getOne'])
-        router.get('', [OrderController, 'getAll'])
-        router.post('', [OrderController, 'create'])
-        router.put('/:id', [OrderController, 'update'])
-        router.delete('/:id', [OrderController, 'delete'])
-      })
-      .prefix('order')
-      .use(middleware.auth())
-
-    /**
-     * OrderItem routes
-     *
-     */
-    router
-      .group(() => {
-        router.put('/update-many-status', [OrderItemController, 'updateManyStatus'])
-        router.get('/:id', [OrderItemController, 'getOne'])
-        router.get('', [OrderItemController, 'getAll'])
-        router.post('', [OrderItemController, 'create'])
-        router.put('/:id', [OrderItemController, 'update'])
-        router.delete('/:id', [OrderItemController, 'delete'])
-      })
-      .prefix('orderItem')
-      .use(middleware.auth())
-
-    /**
-     * Item routes
-     *
-     */
-    router
-      .group(() => {
-        router.get('/:id', [ItemController, 'getOne'])
-        router.get('', [ItemController, 'getAll'])
-        router.post('', [ItemController, 'create'])
-        router.put('/:id', [ItemController, 'update']).use(middleware.bouncer(isAdmin))
-        router.delete('/:id', [ItemController, 'delete']).use(middleware.bouncer(isAdmin))
-      })
-      .prefix('item')
-      .use(middleware.auth())
-
-    /**
-     * Status routes
-     *
-     */
-    router
-      .group(() => {
-        router.get('/:id', [StatusController, 'getOne'])
-        router.get('', [StatusController, 'getAll'])
-        router.post('', [StatusController, 'create'])
-        router.put('/:id', [StatusController, 'update'])
-        router.delete('/:id', [StatusController, 'delete'])
-      })
-      .prefix('status')
+      .prefix('admin')
       .use([middleware.auth(), middleware.bouncer(isAdmin)])
-
-    /**
-     * ItemType routes
-     *
-     */
-    router
-      .group(() => {
-        router.get('/:id', [ItemTypeController, 'getOne'])
-        router.get('', [ItemTypeController, 'getAll'])
-        router.post('', [ItemTypeController, 'create']).use(middleware.bouncer(isAdmin))
-        router.put('/:id', [ItemTypeController, 'update']).use(middleware.bouncer(isAdmin))
-        router.delete('/:id', [ItemTypeController, 'delete']).use(middleware.bouncer(isAdmin))
-      })
-      .prefix('itemType')
-      .use([middleware.auth()])
 
     /**
      * Tag routes
@@ -171,18 +87,6 @@ router
       })
       .prefix('tag')
       .use(middleware.auth())
-
-    /**
-     * QR Token routes (Admin only)
-     */
-    router
-      .group(() => {
-        router.get('/user/:id/qr-token', [QrAuthController, 'getOrGenerateQrToken'])
-        router.post('/user/:id/generate-qr', [QrAuthController, 'generateQrToken'])
-        router.get('/qr-tokens', [QrAuthController, 'listActiveTokens'])
-      })
-      .prefix('admin')
-      .use([middleware.auth(), middleware.bouncer(isAdmin)])
 
     /**
      * Account routes

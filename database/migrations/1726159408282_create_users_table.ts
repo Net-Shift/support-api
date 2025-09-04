@@ -10,9 +10,13 @@ export default class extends BaseSchema {
       table.string('password').notNullable()
       table.string('first_name').notNullable()
       table.string('last_name').notNullable()
-      table.string('profil').notNullable().defaultTo('manager')
+      table.string('profil').notNullable()
+      table.string('account_type').notNullable()
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
+      table.string('login_id').unique()
+      table.string('phone').nullable()
+      table.text('profile_image').nullable()
     })
   }
 

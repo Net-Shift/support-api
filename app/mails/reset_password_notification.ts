@@ -3,7 +3,7 @@ import env from '#start/env'
 import mail from '@adonisjs/mail/services/main'
 import { randomBytes } from 'node:crypto'
 import { DateTime } from 'luxon'
-import PasswordResetToken  from '#models/password-reset'
+import PasswordResetToken  from '#models/password_reset'
 
 export default async function sendResetPasswordNotification(user: User) {
   try {

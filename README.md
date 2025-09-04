@@ -25,7 +25,7 @@ git push scalingo master
 ## Docker 
 
 ### Postgres
-docker run -d -p 5432:5432 --name postgres_container -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=fork_it_api postgres
+docker run -d -p 5432:5432 --name support_api -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -e POSTGRES_DB=support_api postgres
 docker start postgres_container
 
 ### Run migrations and seed database
